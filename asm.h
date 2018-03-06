@@ -25,6 +25,7 @@ typedef struct		s_lab
 {
 	char			*lab;
 	int 			pos;
+	int 			indir;
 	struct s_lab   *next;
 }					t_lab;
 

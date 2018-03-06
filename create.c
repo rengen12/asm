@@ -200,13 +200,13 @@ int 	find_acb(char *in)
 	return (acb);
 }
 
-t_lab	*save_address(int pos, char *str, t_lab *address)
+t_lab	*save_address(int pos, char *str, t_lab *address, int indir)
 {
 	t_lab	*new;
 	char	*label;
 	int		i;
 
-	printf("saving address '%s'\n", str);
+//	printf("saving address '%s'\n", str);
 	i = 0;
 	while (is_label_char(str[i]))
 		i++;
@@ -219,11 +219,12 @@ t_lab	*save_address(int pos, char *str, t_lab *address)
 	new->lab = label;
 	new->next = address;
 	new->pos = pos;
-//	printf("saved address = '%s'\n", new->lab);
+	new->indir = (indir == 1 ? 1 : 0);
+//	printf("saved address = '%s'\n", str);
 	return (new);
 }
 
-int 	add_args(char *in, int pos, char *c, t_lab *address)
+int 	add_args(char *in, int pos, char *c, t_lab **address)
 {
 	int 	i;
 	int 	j;
@@ -266,7 +267,7 @@ int 	add_args(char *in, int pos, char *c, t_lab *address)
 		{
 			if (c[i + 1] == LABEL_CHAR)
 			{
-				address = save_address(pos, c + i + 2, address);
+				*address = save_address(pos, c + i + 2, *address, 0);
 				arg = 0;
 				in[pos++] = 0;
 				in[pos++] = 0;
@@ -290,7 +291,7 @@ int 	add_args(char *in, int pos, char *c, t_lab *address)
 		{
 			if (c[i] == LABEL_CHAR)
 			{
-				address = save_address(pos, c + i + 1, address);
+				*address = save_address(pos, c + i + 1, *address, 1);
 				arg = 0;
 				in[pos++] = 0;
 				in[pos++] = 0;
@@ -316,7 +317,7 @@ int 	add_args(char *in, int pos, char *c, t_lab *address)
 	return (pos);
 }
 
-int 	add_instr(char *champ, int pos, t_list *tmp, t_lab *address)
+int 	add_instr(char *champ, int pos, t_list *tmp, t_lab **address)
 {
 //	printf("test\n");
 //	printf("pos = %d\n", pos);
@@ -382,6 +383,33 @@ void	print_labels(t_lab *label)
 	}
 }
 
+void	add_links(char * champ, t_lab *label, t_lab *address)
+{
+	t_lab	*tmp;
+	t_lab	*search;
+	int 	val;
+
+	tmp = address;
+	while (tmp)
+	{
+		search = label;
+		while (search)
+		{
+			if (ft_strcmp(tmp->lab, search->lab) == 0)
+			{
+				val = search->pos - tmp->pos + 1;
+				if (tmp->indir == 1)
+					val = val + 2;
+				printf("val = %d\n", val);
+				champ[tmp->pos] = (char)((val << 16) >> 24);
+				champ[tmp->pos + 1] = (char)((val << 24) >> 24);
+			}
+			search = search->next;
+		}
+		tmp = tmp->next;
+	}
+}
+
 int		first_trace(char *champ, int pos, t_list *code)
 {
 	t_list	*tmp;
@@ -421,12 +449,13 @@ int		first_trace(char *champ, int pos, t_list *code)
 			continue ;
 		}
 		if (tmp->op > 0)
-			pos = add_instr(champ, pos, tmp, address);
+			pos = add_instr(champ, pos, tmp, &address);
 		tmp = tmp->next;
 //		printf("op = %d\n", tmp->op);
 //		printf("pos = %d\n", pos);
 	}
-	print_labels(address);
+	print_labels(label);
+	add_links(champ, label, address);
 	return (pos);
 }
 
