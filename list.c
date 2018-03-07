@@ -7,9 +7,12 @@
 t_list	*listn(char *in)
 {
 	t_list *ret;
+	static int
 
 	ret = (t_list *)malloc(sizeof(t_list));
 	ret->next = NULL;
+	ret->white = 0;
+	ret->op = 0;
 	ret->str = (char*)malloc(ft_strlen(in) + 1);
 	ret->str = ft_memmove(ret->str, in, ft_strlen(in) + 1);
 

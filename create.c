@@ -31,8 +31,8 @@ char 	*make_filename(char *file)
 	int 	len;
 
 	len = ft_strlen(file);
-	printf(">>>>>>>>>>>>>%s\n", file);
-	printf("len = %d\n", len);
+//	printf(">>>>>>>>>>>>>%s\n", file);
+//	printf("len = %d\n", len);
 	i = -1;
 	ret = (char*)malloc(ft_strlen(file) + 3);
 	while (++i < len - 2)
@@ -42,7 +42,7 @@ char 	*make_filename(char *file)
 	ret[++i] = 'o';
 	ret[++i] = 'r';
 	ret[++i] = '\0';
-	printf(">>>>>>>>>>>>>%s\n", ret);
+//	printf(">>>>>>>>>>>>>%s\n", ret);
 	return (ret);
 }
 
@@ -127,23 +127,33 @@ int 	find_acb(char *in)
 	while (in[i] == 32 || (in[i] >= 9 && in[i] <= 13))
 		i++;
 	if (in[i] == 'r')
-	{
 		acb = 64;
-		while (in[i] != SEPARATOR_CHAR && in[i] != '\0')
-			i++;
-	}
 	else if (in[i] == DIRECT_CHAR)
-	{
 		acb = 128;
-		while (in[i] != SEPARATOR_CHAR && in[i]!= '\0')
-			i++;
-	}
 	else
-	{
 		acb = 192;
-		while (in[i] != SEPARATOR_CHAR && in[i]!= '\0')
+	while (in[i] != SEPARATOR_CHAR && in[i]!= '\0' && in[i] != COMMENT_CHAR)
+		i++;
+	if (in[i] == COMMENT_CHAR)
+		return (acb);
+	if (in[i] == SEPARATOR_CHAR)
+		i++;
+	while (in[i] == 32 || (in[i] >= 9 && in[i] <= 13))
+		i++;
+//	printf("acb = %d, next char = '%c', i = %d\n", acb, in[i], i);
+	if (in[i] != '\0')
+	{
+		if (in[i] == 'r')
+			acb = acb + 16;
+		else if (in[i] == DIRECT_CHAR)
+			acb = acb + 32;
+		else
+			acb = acb + 48;
+		while (in[i] != SEPARATOR_CHAR && in[i]!= '\0' && in[i] != COMMENT_CHAR)
 			i++;
 	}
+	if (in[i] == COMMENT_CHAR)
+		return (acb);
 	if (in[i] == SEPARATOR_CHAR)
 		i++;
 	while (in[i] == 32 || (in[i] >= 9 && in[i] <= 13))
@@ -152,55 +162,19 @@ int 	find_acb(char *in)
 	if (in[i] != '\0')
 	{
 		if (in[i] == 'r')
-		{
-			acb = acb + 16;
-			while (in[i] != SEPARATOR_CHAR && in[i] != '\0')
-				i++;
-		}
-		else if (in[i] == DIRECT_CHAR)
-		{
-			acb = acb + 32;
-			while (in[i] != SEPARATOR_CHAR && in[i]!= '\0')
-				i++;
-		}
-		else
-		{
-			acb = acb + 48;
-			while (in[i] != SEPARATOR_CHAR && in[i]!= '\0')
-				i++;
-		}
-	}
-	if (in[i] == SEPARATOR_CHAR)
-		i++;
-	while (in[i] == 32 || (in[i] >= 9 && in[i] <= 13))
-		i++;
-//	printf("acb = %d, next char = '%c', i = %d\n", acb, in[i], i);
-	if (in[i] != '\0')
-	{
-		if (in[i] == 'r')
-		{
 			acb = acb + 4;
-			while (in[i] != SEPARATOR_CHAR && in[i] != '\0')
-				i++;
-		}
 		else if (in[i] == DIRECT_CHAR)
-		{
 			acb = acb + 8;
-			while (in[i] != SEPARATOR_CHAR && in[i]!= '\0')
-				i++;
-		}
 		else
-		{
 			acb = acb + 12;
-			while (in[i] != SEPARATOR_CHAR && in[i]!= '\0')
-				i++;
-		}
+		while (in[i] != SEPARATOR_CHAR && in[i]!= '\0' && in[i] != COMMENT_CHAR)
+			i++;
 	}
 //	printf("final acb = %d\n", acb);
 	return (acb);
 }
 
-t_lab	*save_address(int pos, char *str, t_lab *address, int indir)
+t_lab	*save_address(int pos, char *str, t_lab *address, int indir, int start)
 {
 	t_lab	*new;
 	char	*label;
@@ -219,12 +193,13 @@ t_lab	*save_address(int pos, char *str, t_lab *address, int indir)
 	new->lab = label;
 	new->next = address;
 	new->pos = pos;
+	new->start = start;
 	new->indir = (indir == 1 ? 1 : 0);
 //	printf("saved address = '%s'\n", str);
 	return (new);
 }
 
-int 	add_args(char *in, int pos, char *c, t_lab **address)
+int 	add_args(char *in, int pos, t_list *tmp, t_lab **address)
 {
 	int 	i;
 	int 	j;
@@ -235,82 +210,78 @@ int 	add_args(char *in, int pos, char *c, t_lab **address)
 	j = 0;
 	n = 0;
 //	printf(">>>>>>>>>>>>>>>>> '%s', pos = %d\n", c , pos);
-	while (c[i] == 32 || (c[i] >= 9 && c[i] <= 13))
-		i++;
-	while (is_label_char(c[i + j]) == 1)
-		j++;
-	if (c[i + j] == LABEL_CHAR)
+	i = skip_spaces(tmp->str, i);
+	j = skip_labelchar(tmp->str, i) - i;
+	if (tmp->str[i + j] == LABEL_CHAR)
 		i = i + j + 1;
-	while (c[i] == 32 || (c[i] >= 9 && c[i] <= 13))
-		i++;
-	while (c[i] != 32 && (c[i] < 9 || c[i] > 13) && c[i] != '\0')
+	i = skip_spaces(tmp->str, i);
+	while (tmp->str[i] != 32 && (tmp->str[i] < 9 || tmp->str[i] > 13) && tmp->str[i] != '\0')
 		i++;
 //	printf("Making args\n");
-	while (n++ < 3)
+	while (n++ < 3 && tmp->str[i] != '\0' && tmp->str[i] != COMMENT_CHAR)
 	{
-		if (c[i] == '\0' || c[i] == COMMENT_CHAR)
-			break ;
-		if (c[i] == SEPARATOR_CHAR)
+		if (tmp->str[i] == SEPARATOR_CHAR)
 			i++;
-		while (c[i] == 32 || (c[i] >= 9 && c[i] <= 13))
-			i++;
-		if (c[i] == 'r')
+		i = skip_spaces(tmp->str, i);
+		if (tmp->str[i] == 'r')
 		{
-			arg = (int) ft_atoi(c + i + 1);
-			in[pos] = (char)arg;
-			pos++;
-			i++;
-			while (c[i] >= '0' && c[i] <= '9')
-				i++;
+			in[pos++] = (char)ft_atoi(tmp->str + i++ + 1);
+			i = skip_numeric(tmp->str, i);
 		}
-		else if (c[i] == DIRECT_CHAR)
+		else if (tmp->str[i] == DIRECT_CHAR)
 		{
-			if (c[i + 1] == LABEL_CHAR)
+			if (tmp->str[i + 1] == LABEL_CHAR)
 			{
-				*address = save_address(pos, c + i + 2, *address, 0);
-				arg = 0;
-				in[pos++] = 0;
-				in[pos++] = 0;
+				*address = save_address(pos, tmp->str + i + 2, *address, 0, tmp->start);
+				pos++;
+				pos++;
 				i = i + 2;
-				while (is_label_char(c[i]))
+				while (is_label_char(tmp->str[i]))
 					i++;
 			}
 			else
 			{
-				arg = (int) ft_atoi(c + i + 1);
-				in[pos++] = arg >> 24;
-				in[pos++] = (arg << 8) >> 24;
-				in[pos++] = (arg << 16) >> 24;
-				in[pos++] = (arg << 24) >> 24;
+				arg = (int) ft_atoi(tmp->str + i + 1);
+				if ((tmp->op >= 9 && tmp->op <=12) || tmp->op == 14 || tmp->op == 15)
+				{
+					in[pos++] = (arg << 16) >> 24;
+					in[pos++] = (arg << 24) >> 24;
+				}
+				else
+				{
+					in[pos++] = arg >> 24;
+					in[pos++] = (arg << 8) >> 24;
+					in[pos++] = (arg << 16) >> 24;
+					in[pos++] = (arg << 24) >> 24;
+				}
 				i++;
-				while (c[i] >= '0' && c[i] <= '9')
+				while (tmp->str[i] >= '0' && tmp->str[i] <= '9')
 					i++;
 			}
 		}
 		else
 		{
-			if (c[i] == LABEL_CHAR)
+			if (tmp->str[i] == LABEL_CHAR)
 			{
-				*address = save_address(pos, c + i + 1, *address, 1);
-				arg = 0;
-				in[pos++] = 0;
-				in[pos++] = 0;
+				*address = save_address(pos, tmp->str + i + 1, *address, 1, tmp->start);
+				pos++;
+				pos++;
 				i = i + 2;
-				while (is_label_char(c[i]))
+				while (is_label_char(tmp->str[i]))
 					i++;
 			}
 			else
 			{
-				arg = (int)ft_atoi(c + i + 1);
+				arg = (int)ft_atoi(tmp->str + i + 1);
 				in[pos++] = arg >> 24;
 				in[pos++] = (arg << 8) >> 24;
 				in[pos++] = (arg << 16) >> 24;
 				in[pos++] = (arg << 24) >> 24;
-				while (c[i] >= '0' && c[i] <= '9')
+				while (tmp->str[i] >= '0' && tmp->str[i] <= '9')
 					i++;
 			}
 		}
-		while (c[i] != SEPARATOR_CHAR && c[i] != '\0' && c[i] != COMMENT_CHAR)
+		while (tmp->str[i] != SEPARATOR_CHAR && tmp->str[i] != '\0' && tmp->str[i] != COMMENT_CHAR)
 			i++;
 	}
 //	printf("Returning args\n");
@@ -318,26 +289,40 @@ int 	add_args(char *in, int pos, char *c, t_lab **address)
 	return (pos);
 }
 
-int 	add_instr(char *champ, int pos, t_list *tmp, t_lab **address)
+int 	add_instr(char *champ, int pos, t_list *tmp, t_lab **address, int flag)
 {
-//	printf("test\n");
+//	printf("flag = %d\n", flag);
 //	printf("pos = %d\n", pos);
+	int			tm;
+	int			acb;
+	int 		start;
 
-	int	acb;
-
-//	printf("STR = '%s', acb = %d\n", tmp->str, acb);
+	start = pos;
+	tmp->start = pos;
 	champ[pos] = (char)tmp->op;
 	pos++;
 	if (tmp->op == 12 || tmp->op == 15 || tmp->op == 1 || tmp->op == 9)
 		acb = 0;
 	else
 		acb = find_acb(tmp->str);
+
 	if (tmp->op != 12 && tmp->op != 15 && tmp->op != 1 && tmp->op != 9)
 	{
 		champ[pos] = (char)acb;
 		pos++;
 	}
-	pos = add_args(champ, pos, tmp->str, address);
+	tm = pos;
+	pos = add_args(champ, pos, tmp, address);
+	if (flag == 2)
+	{
+		printf("\n%d (%d)\t%s\n", start - 2192, pos - start,  tmp->str);
+		printf("\t\tOP = %d\n", tmp->op);
+		printf("\t\tacb = %x\n", acb);
+		printf("\t\targs = ");
+		while (tm++ != pos)
+			printf("%x  ", champ[tm - 1]);
+		printf("\n");
+	}
 	return (pos);
 
 }
@@ -380,12 +365,12 @@ void	print_labels(t_lab *label)
 	tmp = label;
 	while (tmp)
 	{
-		printf("LABEL: '%s', pos = %d\n", tmp->lab, tmp->pos);
+		printf("LABEL: '%s', pos = %d\n", tmp->lab, tmp->pos -2192);
 		tmp = tmp->next;
 	}
 }
 
-void	add_links(char * champ, t_lab *label, t_lab *address)
+void	add_links(char *champ, t_lab *label, t_lab *address)
 {
 	t_lab	*tmp;
 	t_lab	*search;
@@ -399,10 +384,8 @@ void	add_links(char * champ, t_lab *label, t_lab *address)
 		{
 			if (ft_strcmp(tmp->lab, search->lab) == 0)
 			{
-				val = search->pos - tmp->pos + 1;
-				if (tmp->indir == 1)
-					val = val + 2;
-				printf("val = %d\n", val);
+				val = search->pos - tmp->start;
+//				printf("val = %d\n", val);
 				champ[tmp->pos] = (char)((val << 16) >> 24);
 				champ[tmp->pos + 1] = (char)((val << 24) >> 24);
 			}
@@ -419,55 +402,56 @@ int		first_trace(char *champ, int pos, t_list *code)
 	t_lab	*address;
 	int 	i;
 	int 	j;
+	static int flag;
 
+//	printf("FLAG = %d\n", flag);
+		flag++;
+//	printf("FLAG = %d\n", flag);
 	tmp = code;
 	label = NULL;
 	address = NULL;
-	while (tmp)
+	while ((tmp = tmp->next))
 	{
-		printf("pos = %d\n", pos);
+//		printf(">>>>>>>pos = %d\n", pos - 2192);
 		i = 0;
-		j = 0;
-		while (tmp->str[i] == 32 || (tmp->str[i] >= 9 && tmp->str[i] <= 13))
-			i++;
+		i = skip_spaces(tmp->str, i);
 		if (tmp->str[i] == COMMENT_CHAR || tmp->str[i] == '.' || tmp->str[i] == '\0')
-		{
-			tmp = tmp->next;
 			continue ;
-		}
-		if (is_label_char(tmp->str[i]))
+		while (is_label_char(tmp->str[i]))
+		{
+			j = 0;
 			while (is_label_char(tmp->str[i + j]))
 				j++;
-		if (tmp->str[i + j] == LABEL_CHAR)
-		{
-//			printf("label was found at '%s'\n", tmp->str);
-			label = add_label(label, new_label(tmp, pos, i));
-			i = i + j + 1;
-			while (tmp->str[i] == 32 || (tmp->str[i] >= 9 && tmp->str[i] <= 13))
-				i++;
+			if (tmp->str[i + j] == LABEL_CHAR)
+			{
+				label = add_label(label, new_label(tmp, pos, i));
+				i = i + j + 1;
+				i = skip_spaces(tmp->str, i);
+			}
+			else
+				break;
 		}
-		if (tmp->str[i] == '\0')
-		{
-			tmp = tmp->next;
+		if (tmp->str[i] == '\0' || tmp->str[i] == COMMENT_CHAR)
 			continue ;
-		}
 		if (tmp->op > 0)
-			pos = add_instr(champ, pos, tmp, &address);
-		tmp = tmp->next;
+			pos = add_instr(champ, pos, tmp, &address, flag);
 //		printf("op = %d\n", tmp->op);
 //		printf("pos = %d\n", pos);
 	}
-	print_labels(label);
+//	print_labels(label);
+//	printf("ADDRESS:\n");
+//	print_labels(address);
 	add_links(champ, label, address);
 	return (pos);
 }
 
 void	add_size(char *in, int size)
 {
+	in[PROG_NAME_LENGTH + 10] = (char)(size >> 8);
 	in[PROG_NAME_LENGTH + 11] = (char)size;
 }
 
-t_list	*create(t_list *code, t_list *error, char *file)
+void	create(t_list *code, char *file, int display)
 {
 	char	*champ;
 	int		size;
@@ -475,8 +459,6 @@ t_list	*create(t_list *code, t_list *error, char *file)
 	int 	fd;
 	int		tmp;
 
-	if (error)
-		code = code->next;
 	file = make_filename(file);
 	pos = -1;
 	size = CHAMP_MAX_SIZE + 1 + 4 + PROG_NAME_LENGTH + COMMENT_LENGTH;
@@ -485,14 +467,17 @@ t_list	*create(t_list *code, t_list *error, char *file)
 		champ[pos] = 0;
 	pos = init_header(champ);
 	pos = init_name(champ, pos, code);
-	printf("POSITION = %d\n", pos);
+//	printf("POSITION = %d\n", pos);
 	pos = init_comment(champ, pos, code);
 	tmp = pos;
 	pos = first_trace(champ, pos, code);
-	printf("pos = '%d'\n", pos);
-	fd = open(file, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-	printf("writing to file %s\n", file);
+	if (display == 1)
+		pos = first_trace(champ, 2192, code);
+//	printf("pos = '%d'\n", pos);
+	if (display == 0)
+		fd = open(file, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+	printf("Writing binary to file %s\n", file);
 	add_size(champ, pos - tmp);
-	write (fd, champ, pos);
-	return (error);
+	if (display == 0)
+		write (fd, champ, pos);
 }

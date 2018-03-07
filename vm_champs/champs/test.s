@@ -1,12 +1,11 @@
-#deassembler par msa 1.8, made by joe
 .name "Tching tching(Intercepteur), Bouh!Bouh!(bruits d'anti-jeu)"
 .comment ""
 
 	 fork  %:label00          		# 3,0,281
-	 ld    %-272,r3           		# 7,3,278
+	 ld    %272,r3           		# 7,3,278
 	 live  %0                 		# 5,10,271
 	 fork  %:label01          		# 3,15,266
-	 ld    %-272,r3           		# 7,18,263
+	 ld    %272,r3           		# 7,18,263
 	 fork  %:label02          		# 3,25,256
 	 ld    %0,r2              		# 7,28,253
 	 ld    %0,r4              		# 7,35,246
@@ -16,7 +15,7 @@ label02: ld    %4,r2              		# 7,45,236
 	 ld    %0,r4              		# 7,52,229
 	 zjmp  %:label03          		# 3,59,222
 
-label01: ld    %-202,r3           		# 7,62,219
+label01: ld    %202,r3           		# 7,62,219
 	 fork  %:label04          		# 3,69,212
 	 ld    %0,r2              		# 7,72,209
 	 ld    %0,r4              		# 7,79,202
@@ -50,7 +49,7 @@ label03: ldi   r2,%:label12,r6    		# 6,181,100
 	 live  %1                 		# 5,194,87
 
 label12: sti   r6,r2,r3           		# 5,199,82
-	 zjmp  %-277              		# 3,204,77
+	 zjmp  %277              		# 3,204,77
 
 label08: ldi   r2,%:label13,r6    		# 6,207,74
 	 ld    %0,r4              		# 7,213,68
@@ -64,7 +63,7 @@ label05: ldi   r2,%:label14,r6    		# 6,233,48
 	 live  %1                 		# 5,246,35
 
 label14: sti   r6,r2,r3           		# 5,251,30
-	 zjmp  %-207              		# 3,256,25
+	 zjmp  %207              		# 3,256,25
 
 label10: live  %1                 		# 5,259,22
 	 fork  %:label10          		# 3,264,17

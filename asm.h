@@ -17,7 +17,10 @@ typedef struct		s_files
 typedef struct		s_list
 {
 	char			*str;
+	int 			start;
 	int 			op;
+	int 			white;
+	int 			num;
 	struct s_list   *next;
 }					t_list;
 
@@ -25,13 +28,14 @@ typedef struct		s_lab
 {
 	char			*lab;
 	int 			pos;
+	int 			start;
 	int 			indir;
 	struct s_lab   *next;
 }					t_lab;
 
 size_t	ft_strlen(char *a);
 void	ft_bzero(void *b, size_t len);
-long		ft_atoi(const char *str);
+long	ft_atoi(const char *str);
 void	*ft_memmove(void *dest, const void *src, size_t n);
 void	*ft_memcpy(void *dest, const void *src, size_t n);
 t_list	*listadd(t_list *head, t_list *new);
@@ -54,7 +58,10 @@ t_list	*test_fork(char *com, char *in, int num, t_list *code);
 t_list	*test_ldi(char *com, char *in, int num, t_list *code);
 t_list	*test_sti(char *com, char *in, int num, t_list *code);
 t_list	*test_aff(char *com, char *in, int num);
-t_list	*create(t_list *code, t_list *error, char *file);
+void	create(t_list *code, char *file, int display);
 int		is_label_char(char test);
+int 	skip_spaces(char *str, int i);
+int 	skip_labelchar(char *str, int i);
+int 	skip_numeric(char *str, int i);
 
 #endif //COREWAR_ASM_H

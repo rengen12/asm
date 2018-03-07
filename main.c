@@ -481,7 +481,46 @@ t_list 	*src_join(t_list *src)
 	return (src);
 }
 
-t_list	*valid(char *file, t_list *error)
+t_list	*trim_comment(t_list *code)
+{
+	t_list	*tmp;
+	int 	i;
+
+	tmp = code;
+	while (tmp)
+	{
+		i = 0;
+		while (tmp->str[i] != COMMENT_CHAR && tmp->str[i] != '\0')
+			i++;
+//		printf("str = %s\n", tmp->str);
+//		printf("i = %d\n", i);
+		tmp->str[i] = '\0';
+		tmp = tmp->next;
+	}
+	return (code);
+}
+
+t_list	*trim_white(t_list *code)
+{
+	t_list	*tmp;
+	int 	i;
+
+	tmp = code;
+	while (tmp)
+	{
+		i = 0;
+		while (tmp->str[i] == 32 || (tmp->str[i] >= 9 && tmp->str[i] <= 13))
+			i++;
+//		printf("i = %d\n", i);
+		tmp->str = tmp->str + i;
+//		printf("str = %s\n", tmp->str);
+
+		tmp = tmp->next;
+	}
+	return (code);
+}
+
+t_list	*valid(char *file, t_list *error, int display)
 {
 	int		fd;
 	t_list	*src;
@@ -502,24 +541,41 @@ t_list	*valid(char *file, t_list *error)
 	while (get_next_line(fd, &line) > 0)
 		src = listadd(src, listn(line));
 	src = lstrev(src);
-	src = src_join(src);
-	print_error(src);
+//	src = src_join(src);
+	src = trim_comment(src);
+	src = trim_white(src);
+//	print_error(src);
 	if ((error = test_code(src, error)) != NULL)
 		return (error);
-	if ((error = create(src, error, file)) != NULL)
-		return (error);
+	create(src, file, display);
 	return (NULL);
 }
 
+int 	find_flag(int ac, char **av)
+{
+	if (ac != 3)
+		return (0);
+	if (ft_strcmp(av[1], "-a") == 0)
+		return (1);
+	if (ft_strcmp(av[2], "-a") == 0)
+		return (0);
+	return (-1);
+}
 
 int		main(int ac, char **av)
 {
-	t_list *error;
+	t_list 	*error;
+	int 	display;
+	char 	*file;
 
 	error = NULL;
-	if (ac == 1 || ac > 2)
+	if (ac == 1 || ac > 3)
 		return (print_usage());
-	if ((error = valid(av[1], error)) != NULL)
+	display = find_flag(ac, av);
+	file = (display == 1 ? av[2] : av[1]);
+	if (display == -1)
+		return (print_usage());
+	if ((error = valid(file, error, display)) != NULL)
 		return (print_error(error));
 	return 0;
 }
