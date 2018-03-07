@@ -7,7 +7,7 @@
 t_list	*listn(char *in)
 {
 	t_list *ret;
-	static int
+//	static int
 
 	ret = (t_list *)malloc(sizeof(t_list));
 	ret->next = NULL;
