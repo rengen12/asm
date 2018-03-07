@@ -16,7 +16,7 @@ label02: ld    %4,r2              		# 7,45,236
 	 zjmp  %:label03          		# 3,59,222
 
 label01: ld    %202,r3           		# 7,62,219
-	 fork  %:label04          		# 3,69,212
+	 fork  %:label04         		# 3,69,212
 	 ld    %0,r2              		# 7,72,209
 	 ld    %0,r4              		# 7,79,202
 	 zjmp  %:label05          		# 3,86,195
@@ -37,7 +37,7 @@ label07: ld    %4,r2              		# 7,141,140
 	 ld    %0,r4              		# 7,148,133
 	 zjmp  %:label08          		# 3,155,126
 
-label06: fork  %:label09          		# 3,158,123
+label06: fork  %:label09           		# 3,158,123
 	 ld    %0,r4              		# 7,161,120
 	 zjmp  %:label10          		# 3,168,113
 

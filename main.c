@@ -138,7 +138,7 @@ char 	*copy_index(char *ret, char *in, int i, int numeric)
 	return (ret);
 }
 
-char	*trim_label(char *in)
+char	*trim_label(char *in, t_list *tmp)
 {
 	int		i;
 	int		block;
@@ -154,7 +154,12 @@ char	*trim_label(char *in)
 		{
 			i++;
 			if (block == 1)
+			{
+				tmp->white = tmp->white + i;
+//				printf("i = %d\n", i);
 				return (ft_memcpy(ret, in, ft_strlen(in) + 1));
+			}
+
 			continue;
 		}
 		else if (in[i] == ':')
@@ -169,7 +174,6 @@ char	*trim_label(char *in)
 //			printf("BLOCK = 1, char = '%c'\n", in[i]);
 			block = 1;
 		}
-
 		i++;
 	}
 	return (ft_memcpy(ret, in, ft_strlen(in) + 1));
@@ -295,7 +299,7 @@ int 	find_op(char *in)
 	return (-1);
 }
 
-char	*trim_space(char *in)
+char	*trim_space(char *in, t_list *tmp)
 {
 	char	*ret;
 	int 	i;
@@ -307,6 +311,7 @@ char	*trim_space(char *in)
 	ret = (char*)malloc(ft_strlen(in) + 1);
 	while (in[i] != '\0' && (in[i] == 32 || (in[i] >= 9 && in[i] <=13)))
 		i++;
+	tmp->white = tmp->white + i;
 	while (in[i] != '\0')
 		ret[j++] = in[i++];
 	ret[j] = '\0';
@@ -315,7 +320,7 @@ char	*trim_space(char *in)
 	return (ret);
 }
 
-t_list	*test_str(char *str, t_list *code, int num, t_list *tmp)
+t_list	*test_str(t_list *tmp, t_list *code)
 {
 	int op;
 	char *tr;
@@ -324,8 +329,8 @@ t_list	*test_str(char *str, t_list *code, int num, t_list *tmp)
 	error = NULL;
 //	printf("NUM = %d, STR = '%s'\n", num, str);
 //	printf("str at start = \t%s\n", str);
-	tr = trim_label(str);
-	tr = trim_space(tr);
+	tr = trim_label(tmp->str, tmp);
+	tr = trim_space(tr, tmp);
 //	printf("tr = %s\n", tr);
 //	printf("STR at start = %s\n", tr);
 	op = find_op(tr);
@@ -333,43 +338,43 @@ t_list	*test_str(char *str, t_list *code, int num, t_list *tmp)
 	if (op < 0)
 	{
 //		printf("INVALID_COMMAND tr = '%s'; str = '%s'\n", tr, str);
-		error = listadd(error, listn(strconcat("Invalid comand ", str)));
+		error = listadd(error, listn(strconcat("Invalid comand ", tmp->str)));
 	}
 	if (op == 1)
 	{
 //		printf(">>>>>>>>>>STR = '%s\'\n", tr);
-		error = test_live("live", tr, error, num);
+		error = test_live("live", tr, error, tmp);
 	}
 	else if (op == 2)
-		error = test_ld("ld", tr, error, num);
+		error = test_ld("ld", tr, error, tmp);
 	else if (op == 13)
-		error = test_ld("lld", tr, error, num);
+		error = test_ld("lld", tr, error, tmp);
 	else if (op == 3)
-		error = test_st(tr, error, num, code);
+		error = test_st(tr, error, tmp, code);
 	else if (op == 4)
-		error = test_add("add" ,tr, error, num);
+		error = test_add("add" ,tr, error, tmp);
 	else if (op == 5)
-		error = test_add("sub" ,tr, error, num);
+		error = test_add("sub" ,tr, error, tmp);
 	else if (op == 6)
-		error = test_and("and" ,tr, error, num);
+		error = test_and("and" ,tr, error, tmp);
 	else if (op == 7)
-		error = test_and("or" ,tr, error, num);
+		error = test_and("or" ,tr, error, tmp);
 	else if (op == 8)
-		error = test_and("xor" ,tr, error, num);
+		error = test_and("xor" ,tr, error, tmp);
 	else if (op == 9)
-		error = test_fork("zjmp" ,tr, num, code);
+		error = test_fork("zjmp" ,tr, tmp, code);
 	else if (op == 12)
-		error = test_fork("fork" ,tr, num, code);
+		error = test_fork("fork" ,tr, tmp, code);
 	else if (op == 15)
-		error = test_fork("lfork" ,tr, num, code);
+		error = test_fork("lfork" ,tr, tmp, code);
 	else if (op == 10)
-		error = test_ldi("ldi" ,tr, num, code);
+		error = test_ldi("ldi" ,tr, tmp, code);
 	else if (op == 14)
-		error = test_ldi("lldi" ,tr, num, code);
+		error = test_ldi("lldi" ,tr, tmp, code);
 	else if (op == 11)
-		error = test_sti("sti" ,tr, num, code);
+		error = test_sti("sti" ,tr, tmp, code);
 	else if (op == 16)
-		error = test_aff("aff" ,tr, num);
+		error = test_aff("aff" ,tr, tmp);
 	tmp->op = op;
 	return (error);
 }
@@ -396,7 +401,7 @@ t_list	*test_code(t_list *code, t_list *error)
 		else if (i == 1)
 			error = test_first(tmp->str, code, error, COMMENT_CMD_STRING);
 		else
-			error = test_str(tmp->str, code, num, tmp);
+			error = test_str(tmp, code);
 		if (error)
 			return (error);
 		tmp = tmp->next;
@@ -513,6 +518,7 @@ t_list	*trim_white(t_list *code)
 			i++;
 //		printf("i = %d\n", i);
 		tmp->str = tmp->str + i;
+		tmp->white = i;
 //		printf("str = %s\n", tmp->str);
 
 		tmp = tmp->next;

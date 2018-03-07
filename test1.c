@@ -69,7 +69,7 @@ int 	find_label(char *label, t_list *code)
 	return (0);
 }
 
-t_list	*test_label(char *in, int i, int num, t_list *code)
+t_list	*test_label(char *in, int i, t_list *tmp, t_list *code)
 {
 	int		size;
 	char	*label;
@@ -85,11 +85,11 @@ t_list	*test_label(char *in, int i, int num, t_list *code)
 	while (size-- > 0)
 		label[j++] = in[i++];
 	if (find_label(label, code) == 0)
-		return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
+		return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
 	return (NULL);
 }
 
-t_list	*test_live(char *com, char *in, t_list *error, int num)
+t_list	*test_live(char *com, char *in, t_list *error, t_list *tmp)
 {
 	int i;
 	int j;
@@ -102,13 +102,13 @@ t_list	*test_live(char *com, char *in, t_list *error, int num)
 		i++;
 	i = skip_spaces(in, i);
 	if (in[i] != DIRECT_CHAR)
-		return (listadd(error, listn(strjoin(ft_itoa(num), ft_itoa(i)))));
+		return (listadd(error, listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white)))));
 	if (in[++i] < '0' || in[i] > '9')
-		return (listadd(error, listn(strjoin(ft_itoa(num), ft_itoa(i)))));
+		return (listadd(error, listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white)))));
 	return (error);
 }
 
-t_list	*test_ld(char *com, char *in, t_list *error, int num)
+t_list	*test_ld(char *com, char *in, t_list *error, t_list *tmp)
 {
 	int		i;
 	int		j;
@@ -122,28 +122,28 @@ t_list	*test_ld(char *com, char *in, t_list *error, int num)
 	if (in[i] == DIRECT_CHAR)
 		i++;
 	if ((in[i] < '0' || in[i] > '9') && in[i] != '-')
-		return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
+		return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
 	if (in[i] == '-')
 		i++;
 	i = skip_numeric(in, i);
 	i = skip_spaces(in, i);
 	if (in[i] != SEPARATOR_CHAR)
-		return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
+		return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
 	i++;
 	i = skip_spaces(in, i);
 	if (in[i] != 'r')
-		return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
+		return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
 	i++;
-	if ((error = test_reg(in, i, num)) != NULL)
+	if ((error = test_reg(in, i, tmp->num)) != NULL)
 		return (error);
 	i = skip_numeric(in, i);
 	i = skip_spaces(in, i);
 	if (in[i] != '\0' && in[i] != COMMENT_CHAR)
-		return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
+		return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
 	return (error);
 }
 
-t_list	*test_st(char *in, t_list *error, int num, t_list *code)
+t_list	*test_st(char *in, t_list *error, t_list *tmp, t_list *code)
 {
 	int		i;
 	int		j;
@@ -157,52 +157,52 @@ t_list	*test_st(char *in, t_list *error, int num, t_list *code)
 		i++;
 	i = skip_spaces(in, i);
 	if (in[i] != 'r')
-		return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
+		return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
 	i++;
-	if ((error = test_reg(in, i, num)) != NULL)
+	if ((error = test_reg(in, i, tmp->num)) != NULL)
 		return (error);
 	while (in[i] >= '0' && in[i] <= '9')
 		i++;
 	i = skip_spaces(in, i);
 	if (in[i] != SEPARATOR_CHAR)
-		return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
+		return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
 	i++;
 	i = skip_spaces(in, i);
 	if (in[i] == 'r')
 	{
-		if ((error = test_reg(in, i + 1, num)) != NULL)
+		if ((error = test_reg(in, i + 1, tmp->num)) != NULL)
 			return (error);
 		i++;
 		while (in[i] >= '0' && in[i] <= '9')
 			i++;
 		i = skip_spaces(in, i);
 		if (in[i] != '\0')
-			return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
+			return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
 	}
 	else if (in[i] == LABEL_CHAR)
 	{
-		if ((error = test_label(in, i + 1, num, code)) != NULL)
+		if ((error = test_label(in, i + 1, tmp, code)) != NULL)
 			return (error);
 		i++;
 		while (is_label_char(in[i]) == 1)
 			i++;
 		i = skip_spaces(in, i);
 		if (in[i] != '\0')
-			return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
+			return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
 	}
 	else if ((in[i] >= '0' && in[i] <= '9') || in[i] == '-')
 	{
 		i = skip_numeric(in, i);
 		i = skip_spaces(in, i);
 		if (in[i] != '\0')
-			return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
+			return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
 	}
 	else
-		return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
+		return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
 	return (error);
 }
 
-t_list	*test_add(char *com, char *in, t_list *error, int num)
+t_list	*test_add(char *com, char *in, t_list *error, t_list *tmp)
 {
 	int		i;
 	int		j;
@@ -220,31 +220,31 @@ t_list	*test_add(char *com, char *in, t_list *error, int num)
 	{
 		i = skip_spaces(in, i);
 		if (in[i] != 'r')
-			return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
+			return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
 		i++;
-		if ((error = test_reg(in, i, num)) != NULL)
+		if ((error = test_reg(in, i, tmp->num)) != NULL)
 			return (error);
 		i = skip_numeric(in, i);
 		i = skip_spaces(in, i);
 		if (in[i] != SEPARATOR_CHAR)
-			return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
+			return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
 		i++;
 	}
 	i = skip_spaces(in, i);
 	if (in[i] != 'r')
-		return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
+		return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
 	i++;
 //	printf("char = '%c'\n", in[i]);
-	if ((error = test_reg(in, i, num)) != NULL)
+	if ((error = test_reg(in, i, tmp->num)) != NULL)
 		return (error);
 	i = skip_numeric(in, i);
 	i = skip_spaces(in, i);
 	if (in[i] != '\0')
-		return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
+		return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
 	return (error);
 }
 
-t_list	*test_and(char *com, char *in, t_list *error, int num)
+t_list	*test_and(char *com, char *in, t_list *error, t_list *tmp)
 {
 	int		i;
 	int		j;
@@ -264,7 +264,7 @@ t_list	*test_and(char *com, char *in, t_list *error, int num)
 		if (in[i] == 'r')
 		{
 			i++;
-			if ((error = test_reg(in, i, num)) != NULL)
+			if ((error = test_reg(in, i, tmp->num)) != NULL)
 				return (error);
 			i = skip_numeric(in, i);
 		}
@@ -276,29 +276,29 @@ t_list	*test_and(char *com, char *in, t_list *error, int num)
 		else if (in[i] >= '0' && in[i] <= '9')
 			i = skip_numeric(in, i);
 		else
-			return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
+			return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
 		i = skip_spaces(in, i);
 		if (in[i] != SEPARATOR_CHAR)
-			return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
+			return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
 		i++;
 	}
 	i = skip_spaces(in, i);
 	if (in[i] == 'r')
 	{
 		i++;
-		if ((error = test_reg(in, i, num)) != NULL)
+		if ((error = test_reg(in, i, tmp->num)) != NULL)
 			return (error);
 		i = skip_numeric(in, i);
 	}
 	else
-		return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
+		return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
 	i = skip_spaces(in, i);
 	if (in[i] != '\0')
-		return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
+		return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
 	return (error);
 }
 
-t_list	*test_fork(char *com, char *in, int num, t_list *code)
+t_list	*test_fork(char *com, char *in, t_list *tmp, t_list *code)
 {
 	int i;
 	int j;
@@ -314,12 +314,12 @@ t_list	*test_fork(char *com, char *in, int num, t_list *code)
 	while (in[i] == 32 || (in[i] >= 9 && in[i] <= 13))
 		i++;
 	if (in[i] != DIRECT_CHAR)
-		return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
+		return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
 	i++;
 	if (in[i] == LABEL_CHAR)
 	{
 		i++;
-		if ((error = test_label(in, i, num, code)) != NULL)
+		if ((error = test_label(in, i, tmp, code)) != NULL)
 			return (error);
 		while (is_label_char(in[i]))
 			i++;
@@ -333,11 +333,15 @@ t_list	*test_fork(char *com, char *in, int num, t_list *code)
 	}
 	i = skip_spaces(in, i);
 	if (in[i] != '\0' && in[i] != COMMENT_CHAR)
-		return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
+	{
+//		printf("tmp->white = %d, in = '%s'\n", tmp->white, in);
+		return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
+	}
+
 	return (error);
 }
 
-t_list	*test_ldi(char *com, char *in, int num, t_list *code)
+t_list	*test_ldi(char *com, char *in, t_list *tmp, t_list *code)
 {
 	int		i;
 	int		j;
@@ -359,7 +363,7 @@ t_list	*test_ldi(char *com, char *in, int num, t_list *code)
 		if (in[i] == 'r')
 		{
 			i++;
-			if ((error = test_reg(in, i, num)) != NULL)
+			if ((error = test_reg(in, i, tmp->num)) != NULL)
 				return (error);
 			i = skip_numeric(in, i);
 		}
@@ -369,7 +373,7 @@ t_list	*test_ldi(char *com, char *in, int num, t_list *code)
 			if (in[i] == LABEL_CHAR)
 			{
 				i++;
-				if ((error = test_label(in, i, num, code)) != NULL)
+				if ((error = test_label(in, i, tmp, code)) != NULL)
 					return (error);
 				while (is_label_char(in[i]))
 					i++;
@@ -382,34 +386,34 @@ t_list	*test_ldi(char *com, char *in, int num, t_list *code)
 		else if (in[i] == LABEL_CHAR && j == 1)
 		{
 			i++;
-			if ((error = test_label(in, i, num, code)) != NULL)
+			if ((error = test_label(in, i, tmp, code)) != NULL)
 				return (error);
 		}
 		else
-			return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
+			return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
 		i = skip_spaces(in, i);
 		if (in[i] != SEPARATOR_CHAR && j == 1)
-			return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
+			return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
 		if (j == 1)
 			i++;
 	}
 	i = skip_spaces(in, i);
 	if (in[i] != SEPARATOR_CHAR && j == 1)
-		return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
+		return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
 	i++;
 	if (in[i] != 'r')
-		return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
+		return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
 	i++;
-	if ((error = test_reg(in, i, num)) != NULL)
+	if ((error = test_reg(in, i, tmp->num)) != NULL)
 		return (error);
 	i = skip_numeric(in, i);
 	i = skip_spaces(in, i);
 	if (in[i] != '\0' && in[i] != COMMENT_CHAR)
-		return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
+		return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
 	return (error);
 }
 
-t_list	*test_sti(char *com, char *in, int num, t_list *code)
+t_list	*test_sti(char *com, char *in, t_list *tmp, t_list *code)
 {
 	int		i;
 	int		j;
@@ -423,13 +427,13 @@ t_list	*test_sti(char *com, char *in, int num, t_list *code)
 	j = 0;
 	i = skip_spaces(in, i);
 	if (in[i] != 'r')
-		return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
+		return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
 	i++;
-	if ((error = test_reg(in, i, num)) != NULL)
+	if ((error = test_reg(in, i, tmp->num)) != NULL)
 		return (error);
 	i = skip_numeric(in, i);
 	if (in[i] != SEPARATOR_CHAR)
-		return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
+		return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
 	i++;
 	while (j++ < 2)
 	{
@@ -437,7 +441,7 @@ t_list	*test_sti(char *com, char *in, int num, t_list *code)
 		if (in[i] == 'r')
 		{
 			i++;
-			if ((error = test_reg(in, i, num)) != NULL)
+			if ((error = test_reg(in, i, tmp->num)) != NULL)
 				return (error);
 			i = skip_numeric(in, i);
 		}
@@ -447,7 +451,7 @@ t_list	*test_sti(char *com, char *in, int num, t_list *code)
 			if (in[i] == LABEL_CHAR)
 			{
 				i++;
-				if ((error = test_label(in, i, num, code)) != NULL)
+				if ((error = test_label(in, i, tmp, code)) != NULL)
 					return (error);
 			}
 			else
@@ -458,24 +462,24 @@ t_list	*test_sti(char *com, char *in, int num, t_list *code)
 		else if (in[i] == LABEL_CHAR && j == 1)
 		{
 			i++;
-			if ((error = test_label(in, i, num, code)) != NULL)
+			if ((error = test_label(in, i, tmp, code)) != NULL)
 				return (error);
 		}
 		else
-			return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
+			return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
 		i = skip_spaces(in, i);
 		if (in[i] != SEPARATOR_CHAR && j == 1)
-			return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
+			return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
 		if (j == 1)
 			i++;
 	}
 	i = skip_spaces(in, i);
 	if (in[i] != '\0' && in[i] != COMMENT_CHAR)
-		return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
+		return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
 	return (error);
 }
 
-t_list	*test_aff(char *com, char *in, int num)
+t_list	*test_aff(char *com, char *in, t_list *tmp)
 {
 	int		i;
 	int		j;
@@ -490,13 +494,13 @@ t_list	*test_aff(char *com, char *in, int num)
 	while (in[i] == 32 || (in[i] >= 9 && in[i] <= 13))
 		i++;
 	if (in[i] != 'r')
-		return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
+		return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
 	i++;
-	if ((error = test_reg(in, i, num)) != NULL)
+	if ((error = test_reg(in, i, tmp->num)) != NULL)
 		return (error);
 	i = skip_numeric(in, i);
 	i = skip_spaces(in, i);
 	if (in[i] != '\0' && in[i] != COMMENT_CHAR)
-		return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
+		return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
 	return (error);
 }
