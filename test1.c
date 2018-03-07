@@ -129,6 +129,7 @@ t_list	*test_ld(char *com, char *in, t_list *error, int num)
 	int		i;
 	int		j;
 
+//	printf("testing com = '%s'\n", in);
 	i = 0;
 	while (in[i] == 32 || (in[i] >= 9 && in[i] <= 13))
 		i++;
@@ -163,8 +164,10 @@ t_list	*test_ld(char *com, char *in, t_list *error, int num)
 		i++;
 	while (in[i] == 32 || (in[i] >= 9  && in[i] <= 13))
 		i++;
-	if (in[i] != '\0')
+
+	if (in[i] != '\0' && in[i] != COMMENT_CHAR)
 		return (listadd(error, listn(strjoin(ft_itoa(num), ft_itoa(i)))));
+//	printf("test\n");
 	return (error);
 }
 
@@ -381,13 +384,20 @@ t_list	*test_fork(char *com, char *in, int num, t_list *code)
 		while (is_label_char(in[i]))
 			i++;
 	}
-	else if (in[i] >= '0' && in[i] <= '9')
+	else if ((in[i] >= '0' && in[i] <= '9') || in[i] == '-')
+	{
+		if (in[i] == '-' && (in[i + 1] >= '0' && in[i + 1] <= '9'))
+			i++;
 		while (in[i] >= '0' && in[i] <= '9')
 			i++;
+	}
+
 	while (in[i] == 32 || (in[i] >= 9 && in[i] <= 13))
 		i++;
-	if (in[i] != '\0')
+//	printf(">>>>>>>char = '%c'\n", in[i]);
+	if (in[i] != '\0' && in[i] != COMMENT_CHAR)
 		return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
+//	printf("test\n");
 	return (error);
 }
 
@@ -406,7 +416,6 @@ t_list	*test_ldi(char *com, char *in, int num, t_list *code)
 		i++;
 //	printf("char = '%c'\n", in[i]);
 	j = 0;
-//	printf("TESTED str = '%s', i = %d\n", in, i);
 	while (j++ < 2)
 	{
 		while (in[i] == 32 || (in[i] >= 9 && in[i] <= 13))
@@ -427,6 +436,8 @@ t_list	*test_ldi(char *com, char *in, int num, t_list *code)
 				i++;
 				if ((error = test_label(in, i, num, code)) != NULL)
 					return (error);
+				while (is_label_char(in[i]))
+					i++;
 			}
 			else
 				while (in[i] >= '0' && in[i] <= '9')
@@ -454,6 +465,8 @@ t_list	*test_ldi(char *com, char *in, int num, t_list *code)
 		i++;
 	if (in[i] != SEPARATOR_CHAR && j == 1)
 		return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
+//	printf("char = '%c', i = %d\n", in[i], i);
+	i++;
 	if (in[i] != 'r')
 		return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
 	i++;
@@ -461,8 +474,11 @@ t_list	*test_ldi(char *com, char *in, int num, t_list *code)
 		return (error);
 	while (in[i] >= '0' && in[i] <= '9')
 		i++;
-	if (in[i] != '\0')
+	while (in[i] == 32 || (in[i] >= 9 && in[i] <= 13))
+		i++;
+	if (in[i] != '\0' && in[i] != COMMENT_CHAR)
 		return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
+
 	return (error);
 }
 
@@ -539,7 +555,7 @@ t_list	*test_sti(char *com, char *in, int num, t_list *code)
 	}
 	while (in[i] == 32 || (in[i] >= 9 && in[i] <= 13))
 		i++;
-	if (in[i] != '\0')
+	if (in[i] != '\0' && in[i] != COMMENT_CHAR)
 		return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
 	return (error);
 }
@@ -569,7 +585,7 @@ t_list	*test_aff(char *com, char *in, int num)
 		i++;
 	while (in[i] == 32 || (in[i] >= 9 && in[i] <= 13))
 		i++;
-	if (in[i] != '\0')
+	if (in[i] != '\0' && in[i] != COMMENT_CHAR)
 		return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
 	return (error);
 }

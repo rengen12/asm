@@ -309,6 +309,7 @@ char	*trim_space(char *in)
 		i++;
 	while (in[i] != '\0')
 		ret[j++] = in[i++];
+	ret[j] = '\0';
 	free(in);
 	in = NULL;
 	return (ret);

@@ -234,7 +234,7 @@ int 	add_args(char *in, int pos, char *c, t_lab **address)
 	i = 0;
 	j = 0;
 	n = 0;
-//	printf(">>>>>>>>>>>>>>>>> '%s'\n", in);
+//	printf(">>>>>>>>>>>>>>>>> '%s', pos = %d\n", c , pos);
 	while (c[i] == 32 || (c[i] >= 9 && c[i] <= 13))
 		i++;
 	while (is_label_char(c[i + j]) == 1)
@@ -248,7 +248,7 @@ int 	add_args(char *in, int pos, char *c, t_lab **address)
 //	printf("Making args\n");
 	while (n++ < 3)
 	{
-		if (c[i] == '\0')
+		if (c[i] == '\0' || c[i] == COMMENT_CHAR)
 			break ;
 		if (c[i] == SEPARATOR_CHAR)
 			i++;
@@ -257,7 +257,7 @@ int 	add_args(char *in, int pos, char *c, t_lab **address)
 		if (c[i] == 'r')
 		{
 			arg = (int) ft_atoi(c + i + 1);
-			in[pos] = (char) arg;
+			in[pos] = (char)arg;
 			pos++;
 			i++;
 			while (c[i] >= '0' && c[i] <= '9')
@@ -301,7 +301,7 @@ int 	add_args(char *in, int pos, char *c, t_lab **address)
 			}
 			else
 			{
-				arg = (int) ft_atoi(c + i + 1);
+				arg = (int)ft_atoi(c + i + 1);
 				in[pos++] = arg >> 24;
 				in[pos++] = (arg << 8) >> 24;
 				in[pos++] = (arg << 16) >> 24;
@@ -310,10 +310,11 @@ int 	add_args(char *in, int pos, char *c, t_lab **address)
 					i++;
 			}
 		}
-		while (c[i] != SEPARATOR_CHAR && c[i] != '\0')
+		while (c[i] != SEPARATOR_CHAR && c[i] != '\0' && c[i] != COMMENT_CHAR)
 			i++;
 	}
 //	printf("Returning args\n");
+//	printf(">>>>>>>>>>>>>>>>>  pos = %d\n", pos);
 	return (pos);
 }
 
@@ -338,6 +339,7 @@ int 	add_instr(char *champ, int pos, t_list *tmp, t_lab **address)
 	}
 	pos = add_args(champ, pos, tmp->str, address);
 	return (pos);
+
 }
 
 t_lab	*new_label(t_list *node, int pos, int i)
@@ -423,6 +425,7 @@ int		first_trace(char *champ, int pos, t_list *code)
 	address = NULL;
 	while (tmp)
 	{
+		printf("pos = %d\n", pos);
 		i = 0;
 		j = 0;
 		while (tmp->str[i] == 32 || (tmp->str[i] >= 9 && tmp->str[i] <= 13))
