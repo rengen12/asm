@@ -12,7 +12,7 @@ t_list	*listn(char *in)
 	num++;
 	ret = (t_list *)malloc(sizeof(t_list));
 	ret->next = NULL;
-	ret->white = 0;
+	ret->white = 1;
 	ret->op = 0;
 	ret->num = num;
 	ret->str = (char*)malloc(ft_strlen(in) + 1);
@@ -61,7 +61,7 @@ char 	*strconcat(char *a, char *b)
 	int 	i;
 	int 	j;
 
-	printf("%s\n", b);
+//	printf("%s\n", b);
 	ret = (char*)malloc(ft_strlen(a) + ft_strlen(b) + 1);
 	i = -1;
 	while (a[++i] != '\0')
@@ -73,7 +73,6 @@ char 	*strconcat(char *a, char *b)
 	ret[i] = '\0';
 //	printf("ret = %s\n", ret);
 	return (ret);
-
 }
 
 t_list	*lstrev(t_list *com)

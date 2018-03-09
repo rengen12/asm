@@ -233,8 +233,10 @@ int 	add_args(char *in, int pos, t_list *tmp, t_lab **address)
 			if (tmp->str[i + 1] == LABEL_CHAR)
 			{
 				*address = save_address(pos, tmp->str + i + 2, *address, 0, tmp->start);
-				pos++;
-				pos++;
+				if ((tmp->op >= 9 && tmp->op <=12) || tmp->op == 14 || tmp->op == 15)
+					pos = pos + 2;
+				else
+					pos = pos + 4;
 				i = i + 2;
 				while (is_label_char(tmp->str[i]))
 					i++;
@@ -289,6 +291,53 @@ int 	add_args(char *in, int pos, t_list *tmp, t_lab **address)
 	return (pos);
 }
 
+char	*binary(int a)
+{
+	char *ret;
+	char * hex;
+
+	hex = "0123456789abcdef";
+//	printf("\n>>>>acb = %d\n", a);
+	ret = (char*)malloc(19);
+	ret[0] = ((a >> 7 > 0) ? '1' : '0');
+	ret[1] = ((a >> 6) % 2  > 0 ? '1' : '0');
+	ret[2] = ' ';
+//	printf("a >> 5 = %d\n", a >> 5);
+	ret[3] = ((a >> 5) % 2 > 0 ? '1' : '0');
+	ret[4] = ((a >> 4) % 2 > 0 ? '1' : '0');
+	ret[5] = ' ';
+	ret[6] = ((a >> 3) % 2 > 0 ? '1' : '0');
+	ret[7] = ((a >> 2) % 2 > 0 ? '1' : '0');
+	ret[8] = ' ';
+	ret[9] = '0';
+	ret[10] = '0';
+	ret[18] = '\0';
+	ret[11] = ' ';
+	ret[12] = '(';
+	ret[13] = '0';
+	ret[14] = 'x';
+	ret[15] = (hex[a / 16]);
+	ret[16] = (hex[a % 16]);
+	ret[17] = ')';
+//	printf("<<<<<ret = %s\n", ret);
+	return (ret);
+}
+
+char	*hexa(unsigned char i)
+{
+	char *hex;
+	char *ret;
+
+//	printf("\n>>>>>>>>>>>>i = %u\n", i);
+	ret = (char*)malloc(3);
+	ret[2] = '\0';
+	hex = "0123456789abcdef";
+	ret[0] = hex[(i >> 4)];
+	ret[1] = hex[i % 16];
+//	printf("ret = %s<<<<<<<<<<<<<<\n", ret);
+	return (ret);
+}
+
 int 	add_instr(char *champ, int pos, t_list *tmp, t_lab **address, int flag)
 {
 //	printf("flag = %d\n", flag);
@@ -296,6 +345,7 @@ int 	add_instr(char *champ, int pos, t_list *tmp, t_lab **address, int flag)
 	int			tm;
 	int			acb;
 	int 		start;
+	char		*t;
 
 	start = pos;
 	tmp->start = pos;
@@ -305,7 +355,6 @@ int 	add_instr(char *champ, int pos, t_list *tmp, t_lab **address, int flag)
 		acb = 0;
 	else
 		acb = find_acb(tmp->str);
-
 	if (tmp->op != 12 && tmp->op != 15 && tmp->op != 1 && tmp->op != 9)
 	{
 		champ[pos] = (char)acb;
@@ -315,13 +364,35 @@ int 	add_instr(char *champ, int pos, t_list *tmp, t_lab **address, int flag)
 	pos = add_args(champ, pos, tmp, address);
 	if (flag == 2)
 	{
-		printf("\n%d (%d)\t%s\n", start - 2192, pos - start,  tmp->str);
-		printf("\t\tOP = %d\n", tmp->op);
-		printf("\t\tacb = %x\n", acb);
-		printf("\t\targs = ");
+		write (1, "\n", 1);
+		t = ft_itoa(start - COMMENT_LENGTH - PROG_NAME_LENGTH - 16);
+		write (1, t, ft_strlen(t));
+		write (1, " (", 2);
+		t = ft_itoa(pos - start);
+		write (1, t, ft_strlen(t));;
+		write (1, ")\t", 2);
+		write (1, tmp->str, ft_strlen(tmp->str));
+//		printf("\n%d (%d)\t%s\n", start - 2192, pos - start,  tmp->str);
+		write (1, "\n\t\tOP = ", 8);
+		t = ft_itoa(tmp->op);
+		write (1, t, ft_strlen(t));
+//		printf("\t\tOP = %d\n", tmp->op);
+		write (1, "\n\t\tacb = ", 9);
+		if (tmp->op == 1 || tmp->op == 9 || tmp->op == 12 || tmp->op ==  15)
+			t = "NULL";
+		else
+			t = binary(acb);
+		write(1, t, ft_strlen(t));
+//		printf("%x\n", acb);
+		write(1, "\n\t\targs = ", 10);
 		while (tm++ != pos)
-			printf("%x  ", champ[tm - 1]);
-		printf("\n");
+		{
+			t = hexa(champ[tm - 1]);
+			write(1, t, ft_strlen(t));
+			write(1, " ", 1);
+		}
+//			printf("%x  ", champ[tm - 1]);
+		write(1, "\n", 1);
 	}
 	return (pos);
 
@@ -395,7 +466,31 @@ void	add_links(char *champ, t_lab *label, t_lab *address)
 	}
 }
 
-int		first_trace(char *champ, int pos, t_list *code)
+int 	test_label_repeat(t_lab *label, t_list **error)
+{
+	t_lab	*tmp;
+	t_lab	*tmp2;
+
+//	print_labels(label);
+	tmp = label;
+	while (tmp)
+	{
+		tmp2 = tmp->next;
+		while (tmp2)
+		{
+			if (ft_strcmp(tmp->lab, tmp2->lab) == 0)
+			{
+				error[0] = listn(strconcat("ERROR: duplicated label: ", tmp->lab));
+				return (1);
+			}
+			tmp2 = tmp2->next;
+		}
+		tmp = tmp->next;
+	}
+	return (0);
+}
+
+int		first_trace(char *champ, int pos, t_list *code, t_list **error)
 {
 	t_list	*tmp;
 	t_lab	*label;
@@ -425,6 +520,8 @@ int		first_trace(char *champ, int pos, t_list *code)
 			if (tmp->str[i + j] == LABEL_CHAR)
 			{
 				label = add_label(label, new_label(tmp, pos, i));
+				if (test_label_repeat(label, error) == 1)
+					return (-1);
 				i = i + j + 1;
 				i = skip_spaces(tmp->str, i);
 			}
@@ -451,7 +548,7 @@ void	add_size(char *in, int size)
 	in[PROG_NAME_LENGTH + 11] = (char)size;
 }
 
-void	create(t_list *code, char *file, int display)
+t_list	*create(t_list *code, char *file, int display, t_list **error)
 {
 	char	*champ;
 	int		size;
@@ -459,6 +556,7 @@ void	create(t_list *code, char *file, int display)
 	int 	fd;
 	int		tmp;
 
+	fd = -2;
 	file = make_filename(file);
 	pos = -1;
 	size = CHAMP_MAX_SIZE + 1 + 4 + PROG_NAME_LENGTH + COMMENT_LENGTH;
@@ -470,14 +568,18 @@ void	create(t_list *code, char *file, int display)
 //	printf("POSITION = %d\n", pos);
 	pos = init_comment(champ, pos, code);
 	tmp = pos;
-	pos = first_trace(champ, pos, code);
+	pos = first_trace(champ, pos, code, error);
+
+	if (error[0] != NULL)
+		return (error[0]);
 	if (display == 1 || display == 0)
-		pos = first_trace(champ, 2192, code);
-//	printf("pos = '%d'\n", pos);
-	if (display == 0)
+		pos = first_trace(champ, 2192, code, error);
+	if (display != 1 && display != 0)
 		fd = open(file, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 	printf("Writing binary to file %s\n", file);
+//	printf("pos = '%d', display = %d, fd = %d\n", pos, display, fd);
 	add_size(champ, pos - tmp);
-	if (display == 0)
+	if (display != 1 && display != 0 && fd > 0)
 		write (fd, champ, pos);
+	return (NULL);
 }

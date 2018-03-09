@@ -141,43 +141,70 @@ char 	*copy_index(char *ret, char *in, int i, int numeric)
 char	*trim_label(char *in, t_list *tmp)
 {
 	int		i;
-	int		block;
+	int 	j;
 	char	*ret;
 
-//	printf("search for trim\n");
-	ret = (char*)malloc(ft_strlen(in) + 1);
+//	printf(">>>>>>>>>>>>in = '%s'\n", in);
 	i = 0;
-	block = 0;
-	while (in[i] != '\0')
-	{
-		if (in[i] == 32 || (in[i] >= 9 && in[i] <=13))
-		{
-			i++;
-			if (block == 1)
-			{
-				tmp->white = tmp->white + i;
-//				printf("i = %d\n", i);
-				return (ft_memcpy(ret, in, ft_strlen(in) + 1));
-			}
-
-			continue;
-		}
-		else if (in[i] == ':')
-		{
-//			printf(": was found!\n");
-//			printf("block = %d\n", block);
-			if (block == 1)
-				return (copy_index(ret, in, i + 1, 0));
-		}
-		else
-		{
-//			printf("BLOCK = 1, char = '%c'\n", in[i]);
-			block = 1;
-		}
+	i = skip_spaces(in, i);
+	j = i;
+	ret = (char*)malloc(ft_strlen(in) + 1);
+	while (is_label_char(in[i]))
 		i++;
+	if (in[i] != LABEL_CHAR)
+		return (ft_memmove(ret, in, ft_strlen(in) + 1));
+	else
+	{
+		i++;
+		i = skip_spaces(in, i);
+		tmp->white = tmp->white + i - j;
+		ret = ft_memmove(ret, in + i, ft_strlen(in + i) + 1);
+//		printf(">>>>>>>>>>>>ret = '%s'\n", ret);
+		return (ret);
 	}
-	return (ft_memcpy(ret, in, ft_strlen(in) + 1));
 }
+
+//char	*trim_label(char *in, t_list *tmp)
+//{
+//	int		i;
+//	int		block;
+//	char	*ret;
+//
+//
+//	ret = (char*)malloc(ft_strlen(in) + 1);
+//	i = 0;
+//	block = 0;
+//	while (in[i] != '\0')
+//	{
+//		if (in[i] == 32 || (in[i] >= 9 && in[i] <=13))
+//		{
+//			i++;
+//			if (block == 1)
+//			{
+//				tmp->white = tmp->white + i;
+////				printf("i = %d\n", i);
+//				return (ft_memcpy(ret, in, ft_strlen(in) + 1));
+//			}
+//
+//			continue;
+//		}
+//		else if (in[i] == ':')
+//		{
+////			printf(": was found!\n");
+////			printf("block = %d\n", block);
+//			if (block == 1)
+//				return (copy_index(ret, in, i + 1, 0));
+//		}
+//		else
+//		{
+////			printf("BLOCK = 1, char = '%c'\n", in[i]);
+//			block = 1;
+//		}
+//		i++;
+//	}
+//
+//	return (ft_memcpy(ret, in, ft_strlen(in) + 1));
+//}
 
 int 	is_label(char *in)
 {
@@ -331,7 +358,7 @@ t_list	*test_str(t_list *tmp, t_list *code)
 //	printf("str at start = \t%s\n", str);
 	tr = trim_label(tmp->str, tmp);
 	tr = trim_space(tr, tmp);
-//	printf("tr = %s\n", tr);
+	printf("tr = %s\n", tr);
 //	printf("STR at start = %s\n", tr);
 	op = find_op(tr);
 //	printf("op = %d\n", op);
@@ -341,26 +368,23 @@ t_list	*test_str(t_list *tmp, t_list *code)
 		error = listadd(error, listn(strconcat("Invalid comand ", tmp->str)));
 	}
 	if (op == 1)
-	{
-//		printf(">>>>>>>>>>STR = '%s\'\n", tr);
-		error = test_live("live", tr, error, tmp);
-	}
+		error = test_fork("live", tr, tmp, code);
 	else if (op == 2)
-		error = test_ld("ld", tr, error, tmp);
+		error = test_ld("ld", tr, tmp, code);
 	else if (op == 13)
 		error = test_ld("lld", tr, error, tmp);
 	else if (op == 3)
 		error = test_st(tr, error, tmp, code);
 	else if (op == 4)
-		error = test_add("add" ,tr, error, tmp);
+		error = test_add("add", tr, tmp);
 	else if (op == 5)
-		error = test_add("sub" ,tr, error, tmp);
+		error = test_add("sub", tr, tmp);
 	else if (op == 6)
-		error = test_and("and" ,tr, error, tmp);
+		error = test_and("and" , tr, tmp);
 	else if (op == 7)
-		error = test_and("or" ,tr, error, tmp);
+		error = test_and("or" ,tr, tmp);
 	else if (op == 8)
-		error = test_and("xor" ,tr, error, tmp);
+		error = test_and("xor" ,tr, tmp);
 	else if (op == 9)
 		error = test_fork("zjmp" ,tr, tmp, code);
 	else if (op == 12)
@@ -505,7 +529,7 @@ t_list	*trim_comment(t_list *code)
 	return (code);
 }
 
-t_list	*trim_white(t_list *code)
+t_list	*trim_white(t_list *code)  // LEAKS!
 {
 	t_list	*tmp;
 	int 	i;
@@ -514,8 +538,7 @@ t_list	*trim_white(t_list *code)
 	while (tmp)
 	{
 		i = 0;
-		while (tmp->str[i] == 32 || (tmp->str[i] >= 9 && tmp->str[i] <= 13))
-			i++;
+		i = skip_spaces(tmp->str, i);
 //		printf("i = %d\n", i);
 		tmp->str = tmp->str + i;
 		tmp->white = i;
@@ -553,7 +576,8 @@ t_list	*valid(char *file, t_list *error, int display)
 //	print_error(src);
 	if ((error = test_code(src, error)) != NULL)
 		return (error);
-	create(src, file, display);
+	if ((error = create(src, file, display, &error)) != NULL)
+		return (error);
 	return (NULL);
 }
 
