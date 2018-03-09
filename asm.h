@@ -63,5 +63,6 @@ int		is_label_char(char test);
 int 	skip_spaces(char *str, int i);
 int 	skip_labelchar(char *str, int i);
 int 	skip_numeric(char *str, int i);
+t_list	*test_header(t_list *error);
 
 #endif //COREWAR_ASM_H

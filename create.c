@@ -471,7 +471,7 @@ void	create(t_list *code, char *file, int display)
 	pos = init_comment(champ, pos, code);
 	tmp = pos;
 	pos = first_trace(champ, pos, code);
-	if (display == 1)
+	if (display == 1 || display == 0)
 		pos = first_trace(champ, 2192, code);
 //	printf("pos = '%d'\n", pos);
 	if (display == 0)

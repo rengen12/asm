@@ -6,9 +6,8 @@ int 	print_usage(void)
 {
 	char *a;
 
-	a = "Usage: ./asm <sourcefile.s>";
+	a = "Usage: ./asm [-a] | [-h] <sourcefile.s>\n-a: Instead of creating binary displays step-by-step coding process\n-h: help\n";
 	write(1, a, ft_strlen(a));
-	write(1, "\n", 1);
 	return (0);
 }
 
@@ -19,6 +18,7 @@ int 	print_error(t_list *error)
 	tmp = error;
 	while (tmp)
 	{
+//		write(1, "ERROR:\n", 7);
 		write(1, tmp->str, ft_strlen(tmp->str) + 1);
 		write(1, "\n", 1);
 		tmp =tmp->next;
@@ -559,13 +559,41 @@ t_list	*valid(char *file, t_list *error, int display)
 
 int 	find_flag(int ac, char **av)
 {
+	if (ac == 2)
+		if (ft_strcmp(av[1], "-h") == 0)
+			return (10);
 	if (ac != 3)
-		return (0);
+		return (2);
+	if (ft_strcmp(av[1], "-h") == 0)
+		return (10);
+	if (ft_strcmp(av[2], "-h") == 0)
+		return (10);
 	if (ft_strcmp(av[1], "-a") == 0)
 		return (1);
 	if (ft_strcmp(av[2], "-a") == 0)
 		return (0);
 	return (-1);
+}
+
+int 	print_man(void)
+{
+	int		fd;
+	char	*er;
+	char 	*man;
+
+	er = "MAN file <asm.man> is missing\n";
+	fd = open("asm.man", O_RDONLY);
+	if (fd < 0)
+	{
+		write(1, er, ft_strlen(er));
+		return (-1);
+	}
+	while (get_next_line(fd, &man))
+	{
+		write(1, man, ft_strlen(man));
+		write(1, "\n", 1);
+	}
+	return (0);
 }
 
 int		main(int ac, char **av)
@@ -575,9 +603,14 @@ int		main(int ac, char **av)
 	char 	*file;
 
 	error = NULL;
+	if ((error = test_header(error)) != NULL)
+		return (print_error(error));
 	if (ac == 1 || ac > 3)
 		return (print_usage());
 	display = find_flag(ac, av);
+//	printf("display = %d\n", display);
+	if (display == 10)
+		return (print_man());
 	file = (display == 1 ? av[2] : av[1]);
 	if (display == -1)
 		return (print_usage());

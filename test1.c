@@ -121,11 +121,21 @@ t_list	*test_ld(char *com, char *in, t_list *error, t_list *tmp)
 	i = skip_spaces(in, i);
 	if (in[i] == DIRECT_CHAR)
 		i++;
-	if ((in[i] < '0' || in[i] > '9') && in[i] != '-')
-		return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
-	if (in[i] == '-')
+	if (in[i] == LABEL_CHAR)
+	{
 		i++;
-	i = skip_numeric(in, i);
+		while (is_label_char(in[i]))
+			i++;
+	}
+	else
+	{
+		if ((in[i] < '0' || in[i] > '9') && in[i] != '-')
+			return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
+		if (in[i] == '-')
+			i++;
+		i = skip_numeric(in, i);
+	}
+
 	i = skip_spaces(in, i);
 	if (in[i] != SEPARATOR_CHAR)
 		return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
@@ -306,13 +316,11 @@ t_list	*test_fork(char *com, char *in, t_list *tmp, t_list *code)
 
 	error = NULL;
 	i = 0;
-	while (in[i] == 32 || (in[i] >= 9 && in[i] <= 13))
-		i++;
+	i = skip_spaces(in, i);
 	j = -1;
 	while (in[i] == com[++j])
 		i++;
-	while (in[i] == 32 || (in[i] >= 9 && in[i] <= 13))
-		i++;
+	i = skip_spaces(in, i);
 	if (in[i] != DIRECT_CHAR)
 		return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
 	i++;
@@ -358,8 +366,7 @@ t_list	*test_ldi(char *com, char *in, t_list *tmp, t_list *code)
 	j = 0;
 	while (j++ < 2)
 	{
-		while (in[i] == 32 || (in[i] >= 9 && in[i] <= 13))
-			i++;
+		i = skip_spaces(in, i);
 		if (in[i] == 'r')
 		{
 			i++;

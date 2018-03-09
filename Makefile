@@ -1,6 +1,6 @@
 NAME = asm
 
-SRC = gnl.c main.c support.c list.c split.c itoa.c test1.c create.c skip.c
+SRC = gnl.c main.c support.c list.c split.c itoa.c test1.c create.c skip.c test_header.c
 
 OBJ = $(SRC:.c=.o)
 

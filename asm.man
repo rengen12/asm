@@ -1,0 +1,34 @@
+
+ASM help
+
+ASM is a program, which can create a "champion binary file" from a "champion source file"
+Champion source file must have name *.s, otherwise an error will be displayed
+Champion binary file have a name *.cor and may be used in Corewar virtual machine
+
+./asm [-a] | [-h] <sourcefile.s>
+-a: Instead of creating binary displays step-by-step coding process
+-h: help
+
+-a: this flag allows to display string-by-string source to binary translation process
+Each string comprises the following information:
+
+<Byte position in binary> <size of command> <command string in source file>
+<OP code>
+<ACB byte>
+<Argument bytes>
+
+Syntax rules in source file:
+
+First non-comment string must contain NAME_CMD_STRING and name of champion
+Example: <.name "Ceaserus">
+Second non-comment string must contain COMMENT_CMD_STRING and comment
+Example: <.comment "Version 1.2">
+
+Each string may be one of:
+comment string, which starts witn COMMENT_CHAR or whitespaces, followed by COMMENT_CHAR
+empty   string, which starts witn '\0', '\n' or whitespaces, followed by '\0' or '\n'
+label   string, which starts with whitespaces, followed by label[s]
+command string, which may contain label[s], followed by command
+        command must contain <command_name> and <arguments>
+        <command_name> is consisted of [ld] | [lld] | [fork] | [lfork] | [aff] | [live] | [zjump] | [st] | [sti] | [ldi] | [lldi] | [add] | [sub] | [and] | [or] | [xor]
+        <arguments> is consisted of 1 to 3 arguments, depending on used command
