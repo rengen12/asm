@@ -35,7 +35,7 @@ char	*strjoin(char *a, char *b)
 	int 	j;
 	char 	*out;
 
-	printf("GENERING ERROR a = %s\n", a);
+//	printf("GENERING ERROR a = %s\n", a);
 	er = "Syntax error at token [";
 	len = ft_strlen(er) + ft_strlen(a) + ft_strlen(b) + 2;
 	out = (char*)malloc(len + 1);
@@ -51,7 +51,7 @@ char	*strjoin(char *a, char *b)
 	while (b[j] != '\0')
 		out[++i] = b[j++];
 	out[++i] = ']';
-	printf("ERROR out = %s\n", out);
+//	printf("ERROR out = %s\n", out);
 	return (out);
 }
 
@@ -104,3 +104,4 @@ int 	ft_strcmp(char *a, char *b)
 	return (a[i] - b[i]);
 
 }
+

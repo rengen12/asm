@@ -358,15 +358,14 @@ t_list	*test_str(t_list *tmp, t_list *code)
 //	printf("str at start = \t%s\n", str);
 	tr = trim_label(tmp->str, tmp);
 	tr = trim_space(tr, tmp);
-	printf("tr = %s\n", tr);
+//	printf("tr = %s\n", tr);
 //	printf("STR at start = %s\n", tr);
 	op = find_op(tr);
+	tmp->op = op;
+
 //	printf("op = %d\n", op);
 	if (op < 0)
-	{
-//		printf("INVALID_COMMAND tr = '%s'; str = '%s'\n", tr, str);
 		error = listadd(error, listn(strconcat("Invalid comand ", tmp->str)));
-	}
 	if (op == 1)
 		error = test_fork("live", tr, tmp, code);
 	else if (op == 2)
@@ -627,14 +626,14 @@ int		main(int ac, char **av)
 	char 	*file;
 
 	error = NULL;
-	if ((error = test_header(error)) != NULL)
-		return (print_error(error));
 	if (ac == 1 || ac > 3)
 		return (print_usage());
 	display = find_flag(ac, av);
 //	printf("display = %d\n", display);
 	if (display == 10)
 		return (print_man());
+	if ((error = test_header(error)) != NULL)
+		return (print_error(error));
 	file = (display == 1 ? av[2] : av[1]);
 	if (display == -1)
 		return (print_usage());
