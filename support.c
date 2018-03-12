@@ -59,8 +59,8 @@ long		ft_atoi(const char *str)
 		sign = -1;
 	if (str[i] == '+' || str[i] == '-')
 		i++;
-	if (str[i] < 48 || str[i] > 57)
-		return (-1);
+//	if (str[i] < 48 || str[i] > 57)
+//		return (-1);
 	while (str[i] >= 48 && str[i] <= 57)
 	{
 		restemp = res * 10 + str[i++] - 48;

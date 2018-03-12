@@ -24,6 +24,7 @@ t_list	*test_reg(char *in, int i, int num)
 	tr = (char*)malloc(ft_strlen(in) + 1);
 	tr = copy_index(tr, in, i, 1);
 	reg = ft_atoi(tr);
+	free(tr);
 	if (reg < 1 || reg > REG_NUMBER)
 		return (listn(strjoin(ft_itoa(num), ft_itoa(i))));
 	return (NULL);
@@ -86,6 +87,7 @@ t_list	*test_label(char *in, int i, t_list *tmp, t_list *code)
 		label[j++] = in[i++];
 	if (find_label(label, code) == 0)
 		return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
+	free(label);
 	return (NULL);
 }
 
@@ -97,6 +99,7 @@ t_list	*test_ld(char *com, char *in, t_list *tmp, t_list *code)
 
 	i = 0;
 	j = -1;
+
 	while (in[i] == com[++j])
 		i++;
 	i = skip_spaces(in, i);
@@ -294,6 +297,7 @@ t_list	*test_fork(char *com, char *in, t_list *tmp, t_list *code)
 	int j;
 	t_list *error;
 
+
 	error = NULL;
 	i = 0;
 	j = -1;
@@ -314,6 +318,7 @@ t_list	*test_fork(char *com, char *in, t_list *tmp, t_list *code)
 	i = skip_spaces(in, i);
 	if (in[i] != '\0')
 		return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
+//	while(1);
 	return (error);
 }
 

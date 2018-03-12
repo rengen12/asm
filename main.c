@@ -107,7 +107,7 @@ t_list	*test_first(char *in, t_list *code, t_list *error, char *name) // NAME_CM
 	i++;
 	while (in[i] != '\0')
 	{
-		if (in[i] != ' ' || (in[i] < 9 || in[i] > 13) || in[i] != '\0')
+		if (in[i] != 32 && (in[i] < 9 || in[i] > 13) && in[i] != '\0')
 			return (error = listadd(error, listn(strjoin(ft_itoa(ft_findstr(in, code)), ft_itoa(i)))));
 		i++;
 	}
@@ -163,48 +163,6 @@ char	*trim_label(char *in, t_list *tmp)
 		return (ret);
 	}
 }
-
-//char	*trim_label(char *in, t_list *tmp)
-//{
-//	int		i;
-//	int		block;
-//	char	*ret;
-//
-//
-//	ret = (char*)malloc(ft_strlen(in) + 1);
-//	i = 0;
-//	block = 0;
-//	while (in[i] != '\0')
-//	{
-//		if (in[i] == 32 || (in[i] >= 9 && in[i] <=13))
-//		{
-//			i++;
-//			if (block == 1)
-//			{
-//				tmp->white = tmp->white + i;
-////				printf("i = %d\n", i);
-//				return (ft_memcpy(ret, in, ft_strlen(in) + 1));
-//			}
-//
-//			continue;
-//		}
-//		else if (in[i] == ':')
-//		{
-////			printf(": was found!\n");
-////			printf("block = %d\n", block);
-//			if (block == 1)
-//				return (copy_index(ret, in, i + 1, 0));
-//		}
-//		else
-//		{
-////			printf("BLOCK = 1, char = '%c'\n", in[i]);
-//			block = 1;
-//		}
-//		i++;
-//	}
-//
-//	return (ft_memcpy(ret, in, ft_strlen(in) + 1));
-//}
 
 int 	is_label(char *in)
 {
@@ -356,13 +314,14 @@ t_list	*test_str(t_list *tmp, t_list *code)
 	error = NULL;
 //	printf("NUM = %d, STR = '%s'\n", num, str);
 //	printf("str at start = \t%s\n", str);
+
 	tr = trim_label(tmp->str, tmp);
 	tr = trim_space(tr, tmp);
+
 //	printf("tr = %s\n", tr);
 //	printf("STR at start = %s\n", tr);
 	op = find_op(tr);
 	tmp->op = op;
-
 //	printf("op = %d\n", op);
 	if (op < 0)
 		error = listadd(error, listn(strconcat("Invalid comand ", tmp->str)));
@@ -398,6 +357,7 @@ t_list	*test_str(t_list *tmp, t_list *code)
 		error = test_sti("sti" ,tr, tmp, code);
 	else if (op == 16)
 		error = test_aff("aff" ,tr, tmp);
+	free(tr);
 	tmp->op = op;
 	return (error);
 }
@@ -538,14 +498,26 @@ t_list	*trim_white(t_list *code)  // LEAKS!
 	{
 		i = 0;
 		i = skip_spaces(tmp->str, i);
-//		printf("i = %d\n", i);
-		tmp->str = tmp->str + i;
+		tmp->str = ft_memmove(tmp->str, tmp->str + i, ft_strlen(tmp->str) - i + 1);
 		tmp->white = i;
-//		printf("str = %s\n", tmp->str);
-
 		tmp = tmp->next;
 	}
 	return (code);
+}
+
+void	clear_src(t_list *src)
+{
+	t_list *tmp;
+	t_list *buff;
+
+	tmp = src;
+	while (tmp)
+	{
+		buff = tmp;
+		free(tmp->str);
+		tmp = tmp->next;
+		free(buff);
+	}
 }
 
 t_list	*valid(char *file, t_list *error, int display)
@@ -555,6 +527,7 @@ t_list	*valid(char *file, t_list *error, int display)
 	char 	*line;
 
 	src = NULL;
+	line = NULL;
 	if (find_s(file) == 0)
 	{
 		error = listadd(error, listn(strconcat("Wrong file type ", file)));
@@ -567,9 +540,12 @@ t_list	*valid(char *file, t_list *error, int display)
 		return (error);
 	}
 	while (get_next_line(fd, &line) > 0)
+	{
 		src = listadd(src, listn(line));
+		free(line);
+	}
+	free(line);
 	src = lstrev(src);
-//	src = src_join(src);
 	src = trim_comment(src);
 	src = trim_white(src);
 //	print_error(src);
@@ -577,6 +553,7 @@ t_list	*valid(char *file, t_list *error, int display)
 		return (error);
 	if ((error = create(src, file, display, &error)) != NULL)
 		return (error);
+	clear_src(src);
 	return (NULL);
 }
 
@@ -604,6 +581,7 @@ int 	print_man(void)
 	char	*er;
 	char 	*man;
 
+	man = NULL;
 	er = "MAN file <asm.man> is missing\n";
 	fd = open("asm.man", O_RDONLY);
 	if (fd < 0)
@@ -615,7 +593,9 @@ int 	print_man(void)
 	{
 		write(1, man, ft_strlen(man));
 		write(1, "\n", 1);
+		free(man);
 	}
+	free(man);
 	return (0);
 }
 

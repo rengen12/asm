@@ -366,16 +366,19 @@ int 	add_instr(char *champ, int pos, t_list *tmp, t_lab **address, int flag)
 	{
 		write (1, "\n", 1);
 		t = ft_itoa(start - COMMENT_LENGTH - PROG_NAME_LENGTH - 16);
+		free(t);
 		write (1, t, ft_strlen(t));
 		write (1, " (", 2);
 		t = ft_itoa(pos - start);
 		write (1, t, ft_strlen(t));;
+		free(t);
 		write (1, ")\t", 2);
 		write (1, tmp->str, ft_strlen(tmp->str));
 //		printf("\n%d (%d)\t%s\n", start - 2192, pos - start,  tmp->str);
 		write (1, "\n\t\tOP = ", 8);
 		t = ft_itoa(tmp->op);
 		write (1, t, ft_strlen(t));
+		free(t);
 //		printf("\t\tOP = %d\n", tmp->op);
 		write (1, "\n\t\tacb = ", 9);
 		if (tmp->op == 1 || tmp->op == 9 || tmp->op == 12 || tmp->op ==  15)
@@ -383,12 +386,15 @@ int 	add_instr(char *champ, int pos, t_list *tmp, t_lab **address, int flag)
 		else
 			t = binary(acb);
 		write(1, t, ft_strlen(t));
+		if (ft_strcmp(t, "NULL") != 0)
+			free(t);
 //		printf("%x\n", acb);
 		write(1, "\n\t\targs = ", 10);
 		while (tm++ != pos)
 		{
 			t = hexa(champ[tm - 1]);
 			write(1, t, ft_strlen(t));
+			free(t);
 			write(1, " ", 1);
 		}
 //			printf("%x  ", champ[tm - 1]);
@@ -490,6 +496,29 @@ int 	test_label_repeat(t_lab *label, t_list **error)
 	return (0);
 }
 
+void	clear_links(t_lab *label, t_lab *address)
+{
+	t_lab *tmp;
+	t_lab *buff;
+
+	tmp = label;
+	while (tmp)
+	{
+		buff = tmp;
+		free(tmp->lab);
+		free(buff);
+		tmp = tmp->next;
+	}
+	tmp = address;
+	while (tmp)
+	{
+		buff = tmp;
+		free(tmp->lab);
+		free(buff);
+		tmp = tmp->next;
+	}
+}
+
 int		first_trace(char *champ, int pos, t_list *code, t_list **error)
 {
 	t_list	*tmp;
@@ -539,6 +568,7 @@ int		first_trace(char *champ, int pos, t_list *code, t_list **error)
 //	printf("ADDRESS:\n");
 //	print_labels(address);
 	add_links(champ, label, address);
+	clear_links(label, address);
 	return (pos);
 }
 
@@ -565,15 +595,16 @@ t_list	*create(t_list *code, char *file, int display, t_list **error)
 		champ[pos] = 0;
 	pos = init_header(champ);
 	pos = init_name(champ, pos, code);
+
 //	printf("POSITION = %d\n", pos);
 	pos = init_comment(champ, pos, code);
 	tmp = pos;
-	pos = first_trace(champ, pos, code, error);
 
+	pos = first_trace(champ, pos, code, error);
 	if (error[0] != NULL)
 		return (error[0]);
 	if (display == 1 || display == 0)
-		pos = first_trace(champ, 2192, code, error);
+		pos = first_trace(champ, 2192, code, error); // FIX THIS!
 	if (display != 1 && display != 0)
 		fd = open(file, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 	printf("Writing binary to file %s\n", file);
@@ -581,5 +612,7 @@ t_list	*create(t_list *code, char *file, int display, t_list **error)
 	add_size(champ, pos - tmp);
 	if (display != 1 && display != 0 && fd > 0)
 		write (fd, champ, pos);
+	free(file);
+	free(champ);
 	return (NULL);
 }

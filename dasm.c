@@ -124,7 +124,7 @@ t_list 	*add_op(char *com, t_list *out, int pos, int *j)
 	i = 0;
 	while(com[i] != 0)
 		out->str[pos++] = com[i++];
-	out->start = j[0];
+	out->start = j[0] - PROG_NAME_LENGTH - COMMENT_LENGTH - 16;
 	out->num = pos;
 	return (out);
 }
@@ -170,38 +170,112 @@ unsigned int 	get_type(unsigned char acb, int flag)
 	return (0);
 }
 
-void	set_link(t_list *code, t_list *tmp)
+int 	is_label_char(char c)
 {
-	static int i;
-	char *a;
+	char	*test;
+	int 	i;
 
-	i++;
-	a = ft_itoa(i);
-	code->str = strconcat(strconcat(strconcat("label_", a), ": "), code->str);
-	code->num = code->num + 7 + ft_strlen(a);
-	tmp->str = strconcat(strconcat(strconcat(tmp->str, ":"), "label_"), a);
-	tmp->num = tmp->num + 8 + ft_strlen(a);
-	tmp->num++;
-	tmp->str[tmp->num] = '\t';
-	tmp->num++;
+	i = 0;
+	test = LABEL_CHARS;
+	while (test[i] != '\0')
+	{
+		if (test[i] == c)
+			return (1);
+		i++;
+	}
+	return (0);
 }
 
-int 	make_link(t_list *code, int val)
+char 	*find_lab(t_list *set)
+{
+	int i;
+	int j;
+	char *ret;
+
+	i = 0;
+	j = 0;
+	ret = NULL;
+	while (set->str[i] == 32 || (set->str[i] >= 9 && set->str[i] <= 13))
+		i++;
+	while (is_label_char(set->str[i + j]))
+		j++;
+	if (set->str[i + j] == LABEL_CHAR)
+	{
+		ret = (char*)malloc(j + 1);
+		ret[j] = '\0';
+		j = -1;
+		while (set->str[i + ++j] != LABEL_CHAR)
+			ret[j] = set->str[i + j];
+	}
+	return (ret);
+}
+
+
+void	set_link(t_list *set, t_list *call)
+{
+	static int	i;
+	char		*a;
+	char 		*label;
+
+//	printf("CODE = %s\n", set->str);
+//	printf("TMP = %s\n", call->str);
+	if ((label = find_lab(set)) == NULL)
+		i++;
+	a = ft_itoa(i);
+	if (label == NULL)
+		set->str = strconcat(strconcat(strconcat("\nlabel_", a), ":\t"), set->str);
+//	printf("code label = '%s'\n", tmp->str);
+	set->num = set->num + 9 + ft_strlen(a);
+	if (label == NULL)
+	{
+		call->str = strconcat(strconcat(strconcat(strconcat(call->str, ":"), "label_"), a), "\n");
+		call->num = call->num + 9 + ft_strlen(a);
+		call->num++;
+		call->str[call->num] = '\t';
+		call->num++;
+	}
+	else
+	{
+		call->str = strconcat(strconcat(strconcat(call->str, ":"), label), "\n");
+		call->num = call->num + 2 + ft_strlen(label);
+		call->num++;
+		call->str[call->num] = '\t';
+		call->num++;
+	}
+}
+
+void 	make_link(t_list *code)
 {
 	t_list	*tmp;
+	t_list	*tmp2;
+	int 	i;
+//	int 	st;
+	int 	val;
 
 	tmp = code;
 	while (tmp)
 	{
-		if (code->start - tmp->start == -val && code->start != tmp->start)
+		i = 0;
+		while (tmp->str[i] != '\n' && tmp->str[i] != DIRECT_CHAR)
+			i++;
+		if (tmp->str[i] == DIRECT_CHAR)
 		{
-			printf("\n>>>>>>>>>>>>>>>>>>>found!\n");
-			set_link(code, tmp);
-			break ;
+			tmp2 = (code->next ? code->next->next : NULL);
+			val = ft_atoi(tmp->str + i + 1);
+//			printf("str = '%s', val = %d\n",tmp->str,  val);
+			while (tmp2)
+			{
+				if (val == tmp2->start - tmp->start && val != 0)
+				{
+//					printf("found link with %s\n", tmp2->str);
+					tmp->str[i + 1] = '\0';
+					set_link(tmp2, tmp);
+				}
+				tmp2 = tmp2->next;
+			}
 		}
 		tmp = tmp->next;
 	}
-	return (0);
 }
 
 int 	add_arg(t_list *out, char *in, int *i, int op)
@@ -271,22 +345,27 @@ int 	add_arg(t_list *out, char *in, int *i, int op)
 //				printf("in[*i + 1] = %u\n", (unsigned char)in[*i + 1]);
 //				printf("in[*i + 2] = %u\n", (unsigned char)in[*i + 2]);
 //				printf("in[*i + 3] = %u\n", (unsigned char)in[*i + 3]);
+
+
 				val = (unsigned int)(((unsigned char)in[*i]) * 256 * 256 * 256);
 				val = val + (unsigned int)(((unsigned char)in[*i + 1]) * 256 * 256);
 				val = val + (unsigned int)(((unsigned char)in[*i + 2]) * 256);
 				val = val + (unsigned int)(in[*i + 3]);
+
+
 //				printf("(unsigned int)(((unsigned char)in[*i + 2]) * 256) = %u\n", (unsigned int)(((unsigned char)in[*i + 2]) * 256));
 //				printf("valu = %u\n", val);
 //				printf("vals = %d\n", val);
-				if ((int)val < -255)
+				if ((int)val < -256)
 					val = val + 256;
+//				else if ((int)val > 0 && (int)(val) < 256)
+//					val = val - 256;
 				value = ft_itoa(val);
 //				printf("value = %s\n", value);
 				*i = *i + 4;
 			}
-//			if ((make_link(out, val)) == 0)
-				while (value[j] != '\0')
-					out->str[out->num++] = value[j++];
+			while (value[j] != '\0')
+				out->str[out->num++] = value[j++];
 		}
 		out->str[out->num++] = SEPARATOR_CHAR;
 	}
@@ -351,6 +430,8 @@ t_list 	*add_all(t_list*out, char *in, int max, int pos)
 //	max++;
 		out = add_command(out, in, &i, pos);
 //		out = add_command(out, in, &i, pos);
+	out = lstrev(out);
+	make_link(out);
 	return (out);
 }
 
@@ -361,7 +442,9 @@ void	print_list(t_list *code)
 	tmp = code;
 	while(tmp)
 	{
+		printf("%d:\t", tmp->start);
 		printf("%s", tmp->str);
+
 //		printf("start = %d\n", tmp->start);
 		tmp = tmp->next;
 	}
@@ -380,7 +463,6 @@ void	decompile(char *in, int max, char *file)
 	out = add_name(out, in, max, pos);
 	out = add_comment(out, in, max, pos);
 	out = add_all(out, in, max, pos);
-	out = lstrev(out);
 	print_list(out);
 }
 
