@@ -1,13 +1,15 @@
 
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ASM help
 
 ASM is a program, which can create a "champion binary file" from a "champion source file"
 Champion source file must be named <*.s>, otherwise an error will be displayed
 Champion binary file will be named <*.cor> and may be used in Corewar virtual machine
 
-./asm [-a] | [-h] <sourcefile.s>
+./asm [-a], [-h], [-l] <sourcefile.s>
 -a: Instead of creating binary displays step-by-step coding process
--h: help
+-h: help, no output binary file, flag [a] ignored
+-l: leaks
 
 -a: this flag allows to display string-by-string source to binary translation process
 Each string comprises the following information:
@@ -16,6 +18,8 @@ Each string comprises the following information:
 <OP code>
 <ACB byte>
 <Argument bytes>
+
+-l: display leaks
 
 Syntax rules in source file:
 
@@ -30,14 +34,15 @@ empty   string, which starts witn '\0', '\n' or whitespaces, followed by '\0' or
 label   string, which starts with whitespaces, followed by label
 command string, which may contain label, followed by command
         command must contain <command_name> and <arguments>
-        <command_name> is consisted of [ld] | [lld] | [fork] | [lfork] | [aff] | [live] | [zjump] | [st] | [sti] | [ldi] | [lldi] | [add] | [sub] | [and] | [or] | [xor]
+        <command_name> is consisted of [ld] | [lld] | [fork] | [lfork] | [aff] | [live]
+        | [zjump] | [st] | [sti] | [ldi] | [lldi] | [add] | [sub] | [and] | [or] | [xor]
         <arguments> is consisted of 1 to 3 arguments, depending on used command
 
-Possible errors within Header file:
+Possible errors within HEADER FILE:
 
 COMMENT_CHAR must differ from SEPARATOR_CHAR, DIRECT_CHAR, LABEL_CHAR and any of LABEL_CHARS
 SEPARATOR_CHAR must differ from COMMENT_CHAR, DIRECT_CHAR, LABEL_CHAR and any of LABEL_CHARS
 DIRECT_CHAR must differ from SEPARATOR_CHAR, COMMENT_CHAR, LABEL_CHAR and any of LABEL_CHARS
 LABEL_CHAR must differ from SEPARATOR_CHAR, DIRECT_CHAR, COMMENT_CHAR_CHAR and any of LABEL_CHARS
-
 Whitespaces is forbidden.
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

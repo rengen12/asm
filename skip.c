@@ -24,5 +24,18 @@ int 	skip_numeric(char *str, int i)
 		i++;
 	while (str[i] >= '0' && str[i] <= '9')
 		i++;
+	i = skip_spaces(str, i);
+	return (i);
+}
+
+int 	skip_math(char *str, int i)
+{
+	i = skip_spaces(str, i);
+	if (str[i] == '-' || str[i] == '+')
+		i++;
+	i = skip_spaces(str, i);
+	while (str[i] >= '0' && str[i] <= '9')
+		i++;
+	i = skip_spaces(str, i);
 	return (i);
 }

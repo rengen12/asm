@@ -28,6 +28,7 @@ typedef struct		s_lab
 {
 	char			*lab;
 	int 			pos;
+	int 			math;
 	int 			start;
 	int 			indir;
 	struct s_lab   *next;
@@ -64,5 +65,6 @@ int 	skip_labelchar(char *str, int i);
 int 	skip_numeric(char *str, int i);
 t_list	*test_header(t_list *error);
 int		is_label_char(char test);
+int 	skip_math(char *str, int i);
 
 #endif //COREWAR_ASM_H

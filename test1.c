@@ -110,6 +110,7 @@ t_list	*test_ld(char *com, char *in, t_list *tmp, t_list *code)
 		if ((error = test_label(in, ++i, tmp, code)) != NULL)
 			return (error);
 		i = skip_labelchar(in, i);
+		i = skip_math(in, i);
 	}
 	else
 	{
@@ -178,7 +179,7 @@ t_list	*test_st(char *in, t_list *error, t_list *tmp, t_list *code)
 		i++;
 		while (is_label_char(in[i]) == 1)
 			i++;
-		i = skip_spaces(in, i);
+		i = skip_math(in, i);
 		if (in[i] != '\0')
 			return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
 	}
@@ -312,6 +313,7 @@ t_list	*test_fork(char *com, char *in, t_list *tmp, t_list *code)
 		if ((error = test_label(in, ++i, tmp, code)) != NULL)
 			return (error);
 		i = skip_labelchar(in, i);
+		i = skip_math(in, i);
 	}
 	else if ((in[i] >= '0' && in[i] <= '9') || in[i] == '-')
 		i = skip_numeric(in, i);
@@ -357,6 +359,7 @@ t_list	*test_ldi(char *com, char *in, t_list *tmp, t_list *code)
 					return (error);
 				while (is_label_char(in[i]))
 					i++;
+				i = skip_math(in, i);
 			}
 			else
 				i = skip_numeric(in, i);
@@ -368,6 +371,8 @@ t_list	*test_ldi(char *com, char *in, t_list *tmp, t_list *code)
 			i++;
 			if ((error = test_label(in, i, tmp, code)) != NULL)
 				return (error);
+			i = skip_labelchar(in, i);
+			i = skip_math(in, i);
 		}
 		else
 			return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));
@@ -433,6 +438,8 @@ t_list	*test_sti(char *com, char *in, t_list *tmp, t_list *code)
 				i++;
 				if ((error = test_label(in, i, tmp, code)) != NULL)
 					return (error);
+				i = skip_labelchar(in, i);
+				i = skip_math(in, i);
 			}
 			else
 				i = skip_numeric(in, i);
@@ -444,6 +451,8 @@ t_list	*test_sti(char *com, char *in, t_list *tmp, t_list *code)
 			i++;
 			if ((error = test_label(in, i, tmp, code)) != NULL)
 				return (error);
+			i = skip_labelchar(in, i);
+			i = skip_math(in, i);
 		}
 		else
 			return (listn(strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white))));

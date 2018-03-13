@@ -5,24 +5,34 @@
 int 	print_usage(void)
 {
 	char *a;
+	char *b;
+	char *d;
+	char *c;
 
-	a = "Usage: ./asm [-a] | [-h] <sourcefile.s>\n-a: Instead of creating binary displays step-by-step coding process\n-h: help\n";
+	a = "Usage: ./asm [-a] | [-h] | [-l] <sourcefile.s>\n-a: Instead of";
+	b = " creating binary displays step-by-step coding process\n";
+	c = "-h: help, no output binary file, flag [-a] ignored\n";
+	d = "-l: leaks\n";
 	write(1, a, ft_strlen(a));
+	write(1, b, ft_strlen(b));
+	write(1, c, ft_strlen(c));
+	write(1, d, ft_strlen(d));
 	return (0);
 }
 
-int 	print_error(t_list *error)
+int 	print_error(t_list *error, int display)
 {
 	t_list	*tmp;
 
 	tmp = error;
 	while (tmp)
 	{
-//		write(1, "ERROR:\n", 7);
 		write(1, tmp->str, ft_strlen(tmp->str) + 1);
 		write(1, "\n", 1);
-		tmp =tmp->next;
+		tmp = tmp->next;
 	}
+	if ((display & 2) == 2)
+		system("leaks asm");
 	return (1);
 }
 
@@ -85,36 +95,36 @@ t_list	*test_first(char *in, t_list *code, t_list *error, char *name) // NAME_CM
 		if (in[i] != ' ' && (in[i] < 9 || in[i] > 13))
 			break ;
 	if (in[i] != name[0])
-		return (error = listadd(error, listn(strjoin(ft_itoa(ft_findstr(in, code)), ft_itoa(i)))));
+		return (listn(strjoin(ft_itoa(ft_findstr(in, code)), ft_itoa(i))));
 	while (in[i] != '\0' && name[j] != '\0')
 		if (in[i++] != name[j++])
-			error = listadd(error, listn(strjoin(ft_itoa(ft_findstr(in, code)), ft_itoa(i - 1))));
+			error = listn(strjoin(ft_itoa(ft_findstr(in, code)), ft_itoa(i - 1)));
 	if (in[i] == '\0' || name[j] != '\0')
-			error = listadd(error, listn(strjoin(ft_itoa(ft_findstr(in, code)), ft_itoa(i))));
+			error = listn(strjoin(ft_itoa(ft_findstr(in, code)), ft_itoa(i)));
 	while (in[i] != '"' && in[i] != '\0')
 	{
 		if (in[i] != '"' && in[i] != ' ' && (in[i] < 9 || in[i] > 13))
-			return (error = listadd(error, listn(strjoin(ft_itoa(ft_findstr(in, code)), ft_itoa(i)))));
+			return (listn(strjoin(ft_itoa(ft_findstr(in, code)), ft_itoa(i))));
 		i++;
 	}
 	if (in[i] != '"')
-		error = listadd(error, listn(strjoin(ft_itoa(ft_findstr(in, code)), ft_itoa(i))));
+		error = listn(strjoin(ft_itoa(ft_findstr(in, code)), ft_itoa(i)));
 	i++;
 	while (in[i] != '"' && in[i] != '\0')
 		i++;
 	if (in[i] != '"')
-		error = listadd(error, listn(strjoin(ft_itoa(ft_findstr(in, code)), ft_itoa(i))));
+		error = listn(strjoin(ft_itoa(ft_findstr(in, code)), ft_itoa(i)));
 	i++;
 	while (in[i] != '\0')
 	{
 		if (in[i] != 32 && (in[i] < 9 || in[i] > 13) && in[i] != '\0')
-			return (error = listadd(error, listn(strjoin(ft_itoa(ft_findstr(in, code)), ft_itoa(i)))));
+			return (listn(strjoin(ft_itoa(ft_findstr(in, code)), ft_itoa(i))));
 		i++;
 	}
 	if (ft_strcmp(name, NAME_CMD_STRING) == 0 && i > PROG_NAME_LENGTH + 5)
-		return (error = listadd(error, listn("Too long name")));
+		return (listn("Too long name"));
 	if (ft_strcmp(name, COMMENT_CMD_STRING) == 0 && i > COMMENT_LENGTH + 8)
-		return (error = listadd(error, listn("Too long name")));
+		return (listn("Too long name"));
 	return (error);
 }
 
@@ -525,18 +535,23 @@ t_list	*valid(char *file, t_list *error, int display)
 	int		fd;
 	t_list	*src;
 	char 	*line;
+	char	*er;
 
 	src = NULL;
 	line = NULL;
 	if (find_s(file) == 0)
 	{
-		error = listadd(error, listn(strconcat("Wrong file type ", file)));
+		er = strconcat("Wrong file type ", file);
+		error = listn(er);
+		free(er);
 		return (error);
 	}
 	fd = open(file, O_RDONLY);
 	if (fd < 0)
 	{
-		error = listadd(error, listn(strconcat("Can't read source file ", file)));
+		er = strconcat("Can't read source file ", file);
+		error = listn(er);
+		free(er);
 		return (error);
 	}
 	while (get_next_line(fd, &line) > 0)
@@ -559,23 +574,33 @@ t_list	*valid(char *file, t_list *error, int display)
 
 int 	find_flag(int ac, char **av)
 {
-	if (ac == 2)
-		if (ft_strcmp(av[1], "-h") == 0)
-			return (10);
-	if (ac != 3)
-		return (2);
-	if (ft_strcmp(av[1], "-h") == 0)
-		return (10);
-	if (ft_strcmp(av[2], "-h") == 0)
-		return (10);
-	if (ft_strcmp(av[1], "-a") == 0)
-		return (1);
-	if (ft_strcmp(av[2], "-a") == 0)
-		return (0);
-	return (-1);
+	int ret;
+	int max;
+
+	max = 255;
+	ret = 0;
+	ac--;
+	while (ac > 0)
+	{
+		if (ft_strcmp(av[ac], "-h") == 0)
+			ret = ret | (max & 1);
+		else if (ft_strcmp(av[ac], "-l") == 0)
+			ret = ret | (max & 2);
+		else if (ft_strcmp(av[ac], "-a") == 0)
+			ret = ret | (max & 4);
+		else
+		{
+			if ((ret & 8) == 8)
+				ret = ret | (max & 16);
+			ret = ret | (max & 8);
+			ret = ret | (ac << 5);
+		}
+		ac--;
+	}
+	return (ret);
 }
 
-int 	print_man(void)
+int 	print_man(int display)
 {
 	int		fd;
 	char	*er;
@@ -596,7 +621,40 @@ int 	print_man(void)
 		free(man);
 	}
 	free(man);
+//	printf("!!!!display = %d\n", display);
+	if ((display & 2) == 2)
+		system("leaks asm");
 	return (0);
+}
+
+int 	invalid_flags(int display)
+{
+	char	*er;
+
+	er = "Invalid arguments, run \"./asm\" for more information\n";
+	write(1, er, ft_strlen(er));
+	if ((display & 2) == 2)
+		system("leaks asm");
+	return (-1);
+}
+
+int 	no_file(int display)
+{
+	char	*er;
+
+	er = "Cant find file among arguments\n";
+	write(1, er, ft_strlen(er));
+	if ((display & 2) == 2)
+		system("leaks asm");
+	return (-1);
+}
+
+char	*find_file(char **av, int flag)
+{
+	int i;
+
+	i = flag >> 5;
+	return (av[i]);
 }
 
 int		main(int ac, char **av)
@@ -606,18 +664,22 @@ int		main(int ac, char **av)
 	char 	*file;
 
 	error = NULL;
-	if (ac == 1 || ac > 3)
+	if (ac == 1 || ac > 5)
 		return (print_usage());
 	display = find_flag(ac, av);
 //	printf("display = %d\n", display);
-	if (display == 10)
-		return (print_man());
+	if ((display & 1) == 1)
+		return (print_man(display));
+	if ((display & 8) != 8)
+		return (no_file(display));
+	if ((display & 16) == 16 )
+		return (invalid_flags(display));
 	if ((error = test_header(error)) != NULL)
-		return (print_error(error));
-	file = (display == 1 ? av[2] : av[1]);
-	if (display == -1)
-		return (print_usage());
+		return (print_error(error, display));
+	file = find_file(av, display);
 	if ((error = valid(file, error, display)) != NULL)
-		return (print_error(error));
-	return 0;
+		return (print_error(error, display));
+	if ((display & 2) == 2)
+		system("leaks asm");
+	return (0);
 }

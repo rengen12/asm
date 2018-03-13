@@ -199,6 +199,28 @@ t_lab	*save_address(int pos, char *str, t_lab *address, int indir, int start)
 	return (new);
 }
 
+int 	set_math(t_list *tmp, int i)
+{
+	int sign;
+	int val;
+
+//	printf("STR = %s\n", tmp->str + i);
+	i = skip_spaces(tmp->str, i);
+	if (tmp->str[i] == '-')
+		sign = -1;
+	else if (tmp->str[i] == '+')
+		sign = 1;
+	else
+		return (0);
+//	printf("sign = %d\n", sign);
+	if (tmp->str[i] == '-' || tmp->str[i] == '+')
+		i++;
+	i = skip_spaces(tmp->str, i);
+	val = sign * ft_atoi(tmp->str + i);
+//	printf("RETURNING = %d\n", val);
+	return (val);
+}
+
 int 	add_args(char *in, int pos, t_list *tmp, t_lab **address)
 {
 	int 	i;
@@ -240,6 +262,11 @@ int 	add_args(char *in, int pos, t_list *tmp, t_lab **address)
 				i = i + 2;
 				while (is_label_char(tmp->str[i]))
 					i++;
+				i = skip_spaces(tmp->str, i);
+//				printf("str = %s\n", tmp->str + i);
+				(*address)->math = set_math(tmp, i);
+//				printf("addr = %d\n", (*address)->math);
+				i = skip_math(tmp->str, i);
 			}
 			else
 			{
@@ -271,6 +298,11 @@ int 	add_args(char *in, int pos, t_list *tmp, t_lab **address)
 				i = i + 2;
 				while (is_label_char(tmp->str[i]))
 					i++;
+				i = skip_spaces(tmp->str, i);
+//				printf("str = %s\n", tmp->str + i);
+				(*address)->math = set_math(tmp, i);
+//				printf("addr2 = %d\n", (*address)->math);
+				i = skip_math(tmp->str, i);
 			}
 			else
 			{
@@ -461,7 +493,7 @@ void	add_links(char *champ, t_lab *label, t_lab *address)
 		{
 			if (ft_strcmp(tmp->lab, search->lab) == 0)
 			{
-				val = search->pos - tmp->start;
+				val = search->pos - tmp->start + tmp->math;
 //				printf("val = %d\n", val);
 				champ[tmp->pos] = (char)((val << 16) >> 24);
 				champ[tmp->pos + 1] = (char)((val << 24) >> 24);
@@ -603,14 +635,15 @@ t_list	*create(t_list *code, char *file, int display, t_list **error)
 	pos = first_trace(champ, pos, code, error);
 	if (error[0] != NULL)
 		return (error[0]);
-	if (display == 1 || display == 0)
+	if ((display & 4) == 4)
 		pos = first_trace(champ, 2192, code, error); // FIX THIS!
-	if (display != 1 && display != 0)
+	if ((display & 4) != 4)
 		fd = open(file, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+	if ((display & 4) != 4)
 	printf("Writing binary to file %s\n", file);
 //	printf("pos = '%d', display = %d, fd = %d\n", pos, display, fd);
 	add_size(champ, pos - tmp);
-	if (display != 1 && display != 0 && fd > 0)
+	if ((display & 4) != 4 && fd > 0)
 		write (fd, champ, pos);
 	free(file);
 	free(champ);
