@@ -1,6 +1,14 @@
-//
-// Created by Denis BUY on 3/4/18.
-//
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   support.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dbuy <marvin@42.fr>                        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2018/03/14 13:36:26 by dbuy              #+#    #+#             */
+/*   Updated: 2018/03/14 13:36:28 by dbuy             ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "asm.h"
 
@@ -45,7 +53,7 @@ void	*ft_memmove(void *dest, const void *src, size_t n)
 	return (dest);
 }
 
-long		ft_atoi(const char *str)
+long	ft_atoi(const char *str)
 {
 	unsigned long	res;
 	unsigned long	restemp;
@@ -59,8 +67,6 @@ long		ft_atoi(const char *str)
 		sign = -1;
 	if (str[i] == '+' || str[i] == '-')
 		i++;
-//	if (str[i] < 48 || str[i] > 57)
-//		return (-1);
 	while (str[i] >= 48 && str[i] <= 57)
 	{
 		restemp = res * 10 + str[i++] - 48;

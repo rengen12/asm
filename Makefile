@@ -1,7 +1,7 @@
 NAME = asm
 NAME2 = dasm
 
-SRC1 = gnl.c main.c support.c list.c split.c itoa.c test1.c create.c skip.c test_header.c
+SRC1 = gnl.c main.c support.c list.c itoa.c test1.c create.c skip.c test_header.c
 SRC2 = dasm.c support.c list.c itoa.c
 
 OBJ1 = $(SRC1:.c=.o)

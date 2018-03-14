@@ -1,13 +1,21 @@
-//
-// Created by Denis BUY on 3/4/18.
-//
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   list.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dbuy <marvin@42.fr>                        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2018/03/14 13:37:18 by dbuy              #+#    #+#             */
+/*   Updated: 2018/03/14 13:37:20 by dbuy             ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "asm.h"
 
 t_list	*listn(char *in)
 {
-	t_list *ret;
-	static int num;
+	t_list		*ret;
+	static int	num;
 
 	num++;
 	ret = (t_list *)malloc(sizeof(t_list));
@@ -17,7 +25,6 @@ t_list	*listn(char *in)
 	ret->num = num;
 	ret->str = (char*)malloc(ft_strlen(in) + 1);
 	ret->str = ft_memmove(ret->str, in, ft_strlen(in) + 1);
-
 	return (ret);
 }
 
@@ -32,10 +39,9 @@ char	*strjoin(char *a, char *b)
 	size_t	len;
 	char	*er;
 	int		i;
-	int 	j;
-	char 	*out;
+	int		j;
+	char	*out;
 
-//	printf("GENERING ERROR a = %s\n", a);
 	er = "Syntax error at token [";
 	len = ft_strlen(er) + ft_strlen(a) + ft_strlen(b) + 2;
 	out = (char*)malloc(len + 1);
@@ -51,27 +57,25 @@ char	*strjoin(char *a, char *b)
 	while (b[j] != '\0')
 		out[++i] = b[j++];
 	out[++i] = ']';
-//	printf("ERROR out = %s\n", out);
+	free(a);
+	free(b);
 	return (out);
 }
 
-char 	*strconcat(char *a, char *b)
+char	*strconcat(char *a, char *b)
 {
 	char	*ret;
-	int 	i;
-	int 	j;
+	int		i;
+	int		j;
 
-//	printf("%s\n", b);
 	ret = (char*)malloc(ft_strlen(a) + ft_strlen(b) + 1);
 	i = -1;
 	while (a[++i] != '\0')
 		ret[i] = a[i];
-//	i++;
 	j = -1;
 	while (b[++j] != '\0')
 		ret[i++] = b[j];
 	ret[i] = '\0';
-//	printf("ret = %s\n", ret);
 	return (ret);
 }
 
@@ -94,7 +98,7 @@ t_list	*lstrev(t_list *com)
 	return (com);
 }
 
-int 	ft_strcmp(char *a, char *b)
+int		ft_strcmp(char *a, char *b)
 {
 	int i;
 
@@ -102,6 +106,4 @@ int 	ft_strcmp(char *a, char *b)
 	while (a[i] == b[i] && a[i] != '\0' && b[i] != '\0')
 		i++;
 	return (a[i] - b[i]);
-
 }
-
