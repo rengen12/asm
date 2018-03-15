@@ -473,7 +473,7 @@ char	*valid(char *file, char *error, int display)
 	src = trim_white(src);
 	if ((error = test_code(src, error)) != NULL)
 		return (error);
-	if ((error = create(src, file, display, &error)) != NULL)
+	if ((error = create(src, file, display)) != NULL)
 		return (error);
 	clear_src(src);
 	return (NULL);

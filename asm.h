@@ -70,8 +70,7 @@ char				*test_fork(char *com, char *in, t_list *tmp, t_list *code);
 char				*test_ldi(char *com, char *in, t_list *tmp, t_list *code);
 char				*test_sti(char *com, char *in, t_list *tmp, t_list *code);
 char				*test_aff(char *com, char *in, t_list *tmp);
-char				*create(t_list *code, char *file, int display, \
-																char **error);
+char				*create(t_list *code, char *file, int display);
 int					is_label_char(char test);
 int					skip_spaces(char *str, int i);
 int					skip_labelchar(char *str, int i);

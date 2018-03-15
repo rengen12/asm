@@ -473,7 +473,7 @@ void	add_links(char *champ, t_lab *label, t_lab *address)
 	}
 }
 
-int		test_label_repeat(t_lab *label, char **error)
+int		test_label_repeat(t_lab *label)
 {
 	t_lab	*tmp;
 	t_lab	*tmp2;
@@ -486,7 +486,8 @@ int		test_label_repeat(t_lab *label, char **error)
 		{
 			if (ft_strcmp(tmp->lab, tmp2->lab) == 0)
 			{
-				error[0] = strconcat("ERROR: duplicated label: ", tmp->lab);
+				write(1, "ERROR: duplicated label: ", 25);
+				write(1, tmp->lab, ft_strlen(tmp->lab));
 				return (1);
 			}
 			tmp2 = tmp2->next;
@@ -521,9 +522,6 @@ void	clear_links(t_lab *label, t_lab *address)
 
 int		first_trace2(t_list *tmp, t_list *code, t_lab **label, int *i)
 {
-	char	*error;
-
-	error = NULL;
 	while (is_label_char(tmp->str[*i]))
 	{
 		code->j = 0;
@@ -532,7 +530,7 @@ int		first_trace2(t_list *tmp, t_list *code, t_lab **label, int *i)
 		if (tmp->str[*i + code->j] == LABEL_CHAR)
 		{
 			*label = add_label(*label, new_label(tmp, code->pos, *i));
-			if (test_label_repeat(*label, &error) == 1)
+			if (test_label_repeat(*label) == 1)
 				return (-1);
 			*i = *i + code->j + 1;
 			*i = skip_spaces(tmp->str, *i);
@@ -588,7 +586,7 @@ void	print_success(int display, char *file, int fd)
 	}
 }
 
-char	*create(t_list *code, char *file, int display, char **er)
+char	*create(t_list *code, char *file, int display)
 {
 	char	*ch;
 	int		pos;
@@ -603,8 +601,8 @@ char	*create(t_list *code, char *file, int display, char **er)
 	pos = init_comment(ch, pos, code);
 	tmp = pos;
 	pos = first_trace(ch, pos, code, 1);
-	if (er[0] != NULL)
-		return (er[0]);
+	if (pos == -1)
+		return ("");
 	if ((display & 4) == 4)
 		pos = first_trace(ch, PROG_NAME_LENGTH + COMMENT_LENGTH + 16, code, 2);
 	fd = ((display & 4) != 4 ? open(file, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR\
