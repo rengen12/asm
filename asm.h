@@ -45,6 +45,7 @@ typedef struct		s_lab
 	int				math;
 	int				start;
 	int				indir;
+	int 			cor;
 	struct s_lab	*next;
 }					t_lab;
 

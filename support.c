@@ -70,8 +70,8 @@ long	ft_atoi(const char *str)
 	while (str[i] >= 48 && str[i] <= 57)
 	{
 		restemp = res * 10 + str[i++] - 48;
-		if (restemp < res || restemp > 4294967295)
-			return (4294967295);
+//		if (restemp < res || restemp > 4294967295)
+//			return (4294967295);
 		res = restemp;
 	}
 	return (res * sign);

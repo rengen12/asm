@@ -332,6 +332,7 @@ char	*test_fork(char *com, char *in, t_list *tmp, t_list *code)
 	int		j;
 	char	*error;
 
+//	printf("str test = '%s'\n", in);
 	i = 0;
 	j = -1;
 	while (in[i] == com[++j])
@@ -339,6 +340,7 @@ char	*test_fork(char *com, char *in, t_list *tmp, t_list *code)
 	i = skip_spaces(in, i);
 	if (in[i] != DIRECT_CHAR)
 		return (strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white + 1)));
+//	printf("CHAR test = '%c'\n", in[i]);
 	i++;
 	if (in[i] == LABEL_CHAR)
 	{

@@ -257,6 +257,11 @@ int		add_args3(t_list *tmp, char *in, int *pos, t_lab **add)
 int		add_args4(t_list *tmp, int *pos, t_lab **add)
 {
 	*add = save_address(*pos, tmp->str + tmp->i + 2, *add, 0);
+	if (tmp->op == 1 || tmp->op == 2 || tmp->op == 6 || tmp->op == 7 \
+									|| tmp->op == 8 || tmp->op == 13)
+		(*add)->cor = 2;
+	else
+		(*add)->cor = 0;
 	(*add)->start = tmp->start;
 	*pos = ((tmp->op >= 9 && tmp->op <= 12) || tmp->op == 14 || \
 									tmp->op == 15 ? *pos + 2 : *pos + 4);
@@ -464,8 +469,13 @@ void	add_links(char *champ, t_lab *label, t_lab *address)
 			if (ft_strcmp(tmp->lab, search->lab) == 0)
 			{
 				val = search->pos - tmp->start + tmp->math;
-				champ[tmp->pos] = (char)((val << 16) >> 24);
-				champ[tmp->pos + 1] = (char)((val << 24) >> 24);
+				champ[tmp->pos + tmp->cor] = (char)((val << 16) >> 24);
+				champ[tmp->pos + 1 + tmp->cor] = (char)((val << 24) >> 24);
+				if (tmp->cor == 2)
+				{
+					champ[tmp->pos] = (char)(val >> 24);
+					champ[tmp->pos + 1] = (char)((val << 8) >> 24);
+				}
 			}
 			search = search->next;
 		}
@@ -473,7 +483,7 @@ void	add_links(char *champ, t_lab *label, t_lab *address)
 	}
 }
 
-int		test_label_repeat(t_lab *label)
+int		test_label_repeat(t_lab *label) // 1 2 6 7 8 13
 {
 	t_lab	*tmp;
 	t_lab	*tmp2;
