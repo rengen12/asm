@@ -101,12 +101,6 @@ char	*test_ld2(char *in, int i, t_list *tmp)
 {
 	char *error;
 
-	if (in[i] != LABEL_CHAR)
-	{
-		if ((in[i] < '0' || in[i] > '9') && in[i] != '-')
-			return (strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white)));
-		i = skip_numeric(in, i);
-	}
 	i = skip_spaces(in, i);
 	if (in[i] != SEPARATOR_CHAR)
 		return (strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white)));
@@ -144,6 +138,8 @@ char	*test_ld(char *com, char *in, t_list *tmp, t_list *code)
 		i = skip_labelchar(in, i);
 		i = skip_math(in, i);
 	}
+	else if (in[i] == '-' || (in[i] >= '0' && in[i] <= '9'))
+		i = skip_numeric(in, i);
 	return (test_ld2(in, i, tmp));
 }
 

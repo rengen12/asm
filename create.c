@@ -232,9 +232,10 @@ int		add_args3(t_list *tmp, char *in, int *pos, t_lab **add)
 	int		arg;
 
 	t = tmp->str + tmp->i;
-	if (t[tmp->i] == LABEL_CHAR)
+	if (t[0] == LABEL_CHAR)
 	{
-		*add = save_address(*pos, t + tmp->i + 1, *add, 1);
+		*add = save_address(*pos, t + 1, *add, 1);
+		(*add)->cor = 0;
 		(*add)->start = tmp->start;
 		*pos = *pos + 2;
 		tmp->i = skip_labelchar(t, tmp->i + 2);
@@ -244,9 +245,9 @@ int		add_args3(t_list *tmp, char *in, int *pos, t_lab **add)
 	}
 	else
 	{
-		arg = (int)ft_atoi(t + tmp->i + 1);
-		in[(*pos)++] = (char)(arg >> 24);
-		in[(*pos)++] = (char)((arg << 8) >> 24);
+		arg = (int)ft_atoi(t); // + 1
+//		in[(*pos)++] = (char)(arg >> 24);
+//		in[(*pos)++] = (char)((arg << 8) >> 24);
 		in[(*pos)++] = (char)((arg << 16) >> 24);
 		in[(*pos)++] = (char)((arg << 24) >> 24);
 		tmp->i = skip_numeric(t, tmp->i);
