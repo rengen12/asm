@@ -541,6 +541,30 @@ int		first_trace2(t_list *tmp, t_list *code, t_lab **label, int *i)
 	return (0);
 }
 
+int	free_lab_add(t_lab *label, t_lab *address)
+{
+	t_lab *tmp;
+	t_lab *tm;
+
+	tmp = label;
+	while (tmp)
+	{
+		tm = tmp;
+		free(tmp->lab);
+		tmp = tmp->next;
+		free(tm);
+	}
+	tmp = address;
+	while (tmp)
+	{
+		tm = tmp;
+		free(tmp->lab);
+		tmp = tmp->next;
+		free(tm);
+	}
+	return (-1);
+}
+
 int		first_trace(char *champ, int pos, t_list *code, int flag)
 {
 	t_list		*tmp;
@@ -554,12 +578,11 @@ int		first_trace(char *champ, int pos, t_list *code, int flag)
 	while ((tmp = tmp->next))
 	{
 		i = skip_spaces(tmp->str, 0);
-		if (tmp->str[i] == COMMENT_CHAR || tmp->str[i] == '.'\
-														|| tmp->str[i] == '\0')
+		if (tmp->str[i] == COMMENT_CHAR || tmp->str[i] == '.' || !tmp->str[i])
 			continue ;
 		code->pos = pos;
 		if (first_trace2(tmp, code, &label, &i) == -1)
-			return (-1);
+			return (free_lab_add(label, address));
 		if (tmp->str[i] == '\0' || tmp->str[i] == COMMENT_CHAR)
 			continue ;
 		tmp->j = flag;
@@ -586,6 +609,13 @@ void	print_success(int display, char *file, int fd)
 	}
 }
 
+char	*free_ch_file(char *ch, char *file)
+{
+	free(ch);
+	free(file);
+	return ("");
+}
+
 char	*create(t_list *code, char *file, int display)
 {
 	char	*ch;
@@ -602,7 +632,7 @@ char	*create(t_list *code, char *file, int display)
 	tmp = pos;
 	pos = first_trace(ch, pos, code, 1);
 	if (pos == -1)
-		return ("");
+		return (free_ch_file(ch, file));
 	if ((display & 4) == 4)
 		pos = first_trace(ch, PROG_NAME_LENGTH + COMMENT_LENGTH + 16, code, 2);
 	fd = ((display & 4) != 4 ? open(file, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR\

@@ -28,9 +28,9 @@ typedef struct		s_files
 typedef struct		s_list
 {
 	char			*str;
-	int 			j;
-	int 			i;
-	int 			pos;
+	int				j;
+	int				i;
+	int				pos;
 	int				start;
 	int				op;
 	int				white;
@@ -78,7 +78,7 @@ int					skip_numeric(char *str, int i);
 char				*test_header(char *error);
 int					is_label_char(char test);
 int					skip_math(char *str, int i);
-void				clear_src(t_list *src);
+char				*clear_src(t_list *src);
 int					skip_com(char *str, char *com);
 
 #endif

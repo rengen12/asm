@@ -40,7 +40,7 @@ int		print_error(char *error, int display)
 	return (1);
 }
 
-void	clear_src(t_list *src)
+char	*clear_src(t_list *src)
 {
 	t_list *tmp;
 	t_list *buff;
@@ -53,6 +53,7 @@ void	clear_src(t_list *src)
 		tmp = tmp->next;
 		free(buff);
 	}
+	return (NULL);
 }
 
 int		find_s(char *in)
@@ -395,26 +396,6 @@ char	*test_code(t_list *code, char *error)
 	return (error);
 }
 
-void	concat(t_list *in)
-{
-	t_list *tmp;
-
-	tmp = (in->next != NULL ? in->next : NULL);
-	if (tmp)
-		while (ft_strlen(tmp->str) == 0)
-		{
-			if (tmp->next)
-				tmp = tmp->next;
-			else
-				return ;
-		}
-	if (tmp)
-	{
-		in->str = strconcat(in->str, tmp->str);
-		tmp->str[0] = '\0';
-	}
-}
-
 t_list	*trim_comment(t_list *code)
 {
 	t_list	*tmp;
@@ -474,9 +455,8 @@ char	*valid(char *file, char *error, int display)
 	if ((error = test_code(src, error)) != NULL)
 		return (error);
 	if ((error = create(src, file, display)) != NULL)
-		return (error);
-	clear_src(src);
-	return (NULL);
+		clear_src(src);
+	return (error == NULL ? clear_src(src) : error);
 }
 
 int		find_flag(int ac, char **av)
