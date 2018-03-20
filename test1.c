@@ -265,10 +265,32 @@ char	*test_add(char *com, char *in, t_list *tmp)
 	return (test_add2(in, i, tmp));
 }
 
-char	*test_and2(char *in, int *i, t_list *tmp, int j)
+char	*test_and3(char *in, int *i, t_list *tmp, t_list *code)
 {
+	char *error;
+
+	if (in[*i] == DIRECT_CHAR)
+		*i = *i + 1;
+	if (in[*i] == LABEL_CHAR)
+	{
+		if ((error = test_label(in, *i + 1, tmp, code)) != NULL)
+			return (error);
+		*i = skip_labelchar(in, (*i + 1));
+		*i = skip_math(in, *i);
+	}
+	else if ((in[*i] >= '0' && in[*i] <= '9') || in[*i] == '-')
+		*i = skip_numeric(in, *i);
+	else
+		return (strjoin(ft_itoa(tmp->num), ft_itoa(*i + tmp->white)));
+	return (NULL);
+}
+
+char	*test_and2(char *in, int *i, t_list *tmp, t_list *code)
+{
+	int		j;
 	char	*error;
 
+	j = 0;
 	while (j++ < 2)
 	{
 		*i = skip_spaces(in, *i);
@@ -279,12 +301,8 @@ char	*test_and2(char *in, int *i, t_list *tmp, int j)
 				return (error);
 			*i = skip_numeric(in, *i);
 		}
-		else if (in[*i] == DIRECT_CHAR)
-			*i = skip_numeric(in, ++(*i));
-		else if ((in[*i] >= '0' && in[*i] <= '9') || in[*i] == '-')
-			*i = skip_numeric(in, *i);
-		else
-			return (strjoin(ft_itoa(tmp->num), ft_itoa(*i + tmp->white)));
+		else if ((error = test_and3(in, i, tmp, code)))
+			return (error);
 		*i = skip_spaces(in, *i);
 		if (in[*i] != SEPARATOR_CHAR)
 			return (strjoin(ft_itoa(tmp->num), ft_itoa(*i + tmp->white)));
@@ -293,7 +311,7 @@ char	*test_and2(char *in, int *i, t_list *tmp, int j)
 	return (NULL);
 }
 
-char	*test_and(char *com, char *in, t_list *tmp)
+char	*test_and(char *com, char *in, t_list *tmp, t_list *code)
 {
 	int		i;
 	int		j;
@@ -304,7 +322,7 @@ char	*test_and(char *com, char *in, t_list *tmp)
 	j = -1;
 	while (in[i] == com[++j])
 		i++;
-	if ((error = test_and2(in, &i, tmp, 0)))
+	if ((error = test_and2(in, &i, tmp, code)))
 		return (error);
 	i = skip_spaces(in, i);
 	if (in[i] == 'r')
@@ -319,7 +337,7 @@ char	*test_and(char *com, char *in, t_list *tmp)
 	i = skip_spaces(in, i);
 	if (in[i] != '\0')
 		return (strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white)));
-	return (error);
+	return (NULL);
 }
 
 char	*test_fork(char *com, char *in, t_list *tmp, t_list *code)
@@ -369,7 +387,7 @@ char	*test_sk_label(char *in, int *i, t_list *tmp, t_list *code)
 {
 	char *error;
 
-	if (*i != LABEL_CHAR)
+	if (in[*i] != LABEL_CHAR)
 		return (NULL);
 	*i = *i + 1;
 	if ((error = test_label(in, *i, tmp, code)) != NULL)
@@ -427,6 +445,22 @@ char	*test_ldi2(char *in, int *i, t_list *tmp, t_list *code)
 	return (NULL);
 }
 
+char 	*test_ldi01(int *i, char *in, t_list *tmp, t_list *code)
+{
+	char *error;
+
+	if (in[*i] == '-' || (in[*i] >= '0' && in[*i] <= '9'))
+		*i = skip_numeric(in, *i);
+	else if (in[*i] == LABEL_CHAR)
+	{
+		if ((error = test_sk_label(in, i, tmp, code)))
+			return (error);
+	}
+	else
+		return (strjoin(ft_itoa(tmp->num), ft_itoa(*i + tmp->white)));
+	return (NULL);
+}
+
 char	*test_ldi(char *com, char *in, t_list *tmp, t_list *code)
 {
 	int		i;
@@ -445,10 +479,8 @@ char	*test_ldi(char *com, char *in, t_list *tmp, t_list *code)
 		i = (in[i] == LABEL_CHAR ? i = skip_labelchar(in, ++i) \
 														: skip_numeric(in, i));
 	}
-	else if (in[i] == '-' || (in[i] >= '0' && in[i] <= '9'))
-		i = skip_numeric(in, i);
-	else
-		return (strjoin(ft_itoa(tmp->num), ft_itoa(i + tmp->white)));
+	else if ((error = test_ldi01(&i, in, tmp, code)))
+		return (error);
 	if ((error = test_ldi2(in, &i, tmp, code)) != NULL)
 		return (error);
 	if ((error = test_ldi3(in, &i, tmp)) != NULL)

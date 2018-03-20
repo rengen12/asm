@@ -402,27 +402,45 @@ void	add_instr2(t_list *tmp, int acb, int start, int *pos)
 	write(1, "\n\t\targs = ", 10);
 }
 
-int		add_instr(char *champ, int pos, t_list *tmp, t_lab **address)
+char 	*expand(char **ch, int pos, int max)
+{
+	printf("REALLOC\n");
+	char *ret;
+
+	ret = (char*)malloc(max * 2);
+	ft_bzero(ret, max * 2);
+	while (pos-- >= 0)
+		ret[pos] = (*ch)[pos];
+	free(*ch);
+	return (ret);
+}
+
+int		add_instr(char **champ, int pos, t_list *tmp, t_lab **address)
 {
 	int			tm;
 	int			acb;
 	int			start;
+	static int 	max;
 
+	max = (max == 0 ? 2800 : max);
 	start = pos;
 	tmp->start = pos;
-	champ[pos] = (char)tmp->op;
+	(*champ)[pos] = (char)tmp->op;
 	pos++;
 	acb = (tmp->op == 12 || tmp->op == 15 || tmp->op == 1 || tmp->op == 9 ? 0 \
 														: find_acb(tmp->str));
 	if (tmp->op != 12 && tmp->op != 15 && tmp->op != 1 && tmp->op != 9)
-		champ[pos++] = (char)acb;
+		(*champ)[pos++] = (char)acb;
 	tm = pos;
-	pos = add_args(champ, pos, tmp, address);
+	pos = add_args(*champ, pos, tmp, address);
 	if (tmp->j == 2)
 	{
 		add_instr2(tmp, acb, start, &pos);
-		add_instr3(tm, &pos, champ);
+		add_instr3(tm, &pos, *champ);
 	}
+	if (pos > max)
+		*champ = expand(champ, pos, max);
+	max = (pos > max ? max * 2 : max);
 	return (pos);
 }
 
@@ -576,7 +594,7 @@ int	free_lab_add(t_lab *label, t_lab *address)
 	return (-1);
 }
 
-int		first_trace(char *champ, int pos, t_list *code, int flag)
+int		first_trace(char **champ, int pos, t_list *code, int flag)
 {
 	t_list		*tmp;
 	t_lab		*label;
@@ -599,7 +617,7 @@ int		first_trace(char *champ, int pos, t_list *code, int flag)
 		tmp->j = flag;
 		pos = (tmp->op > 0 ? add_instr(champ, pos, tmp, &address) : pos);
 	}
-	add_links(champ, label, address);
+	add_links(*champ, label, address);
 	clear_links(label, address);
 	return (pos);
 }
@@ -635,17 +653,17 @@ char	*create(t_list *code, char *file, int display)
 	int		tmp;
 
 	file = make_filename(file);
-	ch = (char*)malloc(CHAMP_MAX_SIZE + 5 + PROG_NAME_LENGTH + COMMENT_LENGTH);
-	ft_bzero(ch, CHAMP_MAX_SIZE + 5 + PROG_NAME_LENGTH + COMMENT_LENGTH);
+	ch = (char*)malloc(CHAMP_MAX_SIZE + 100 + PROG_NAME_LENGTH + COMMENT_LENGTH);
+	ft_bzero(ch, CHAMP_MAX_SIZE + 100 + PROG_NAME_LENGTH + COMMENT_LENGTH);
 	pos = init_header(ch);
 	pos = init_name(ch, pos, code);
 	pos = init_comment(ch, pos, code);
 	tmp = pos;
-	pos = first_trace(ch, pos, code, 1);
+	pos = first_trace(&ch, pos, code, 1);
 	if (pos == -1)
 		return (free_ch_file(ch, file));
 	if ((display & 4) == 4)
-		pos = first_trace(ch, PROG_NAME_LENGTH + COMMENT_LENGTH + 16, code, 2);
+		pos = first_trace(&ch, PROG_NAME_LENGTH + COMMENT_LENGTH + 16, code, 2);
 	fd = ((display & 4) != 4 ? open(file, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR\
 										| S_IWUSR | S_IRGRP | S_IROTH) : -2);
 	add_size(ch, pos - tmp);

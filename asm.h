@@ -66,7 +66,7 @@ char				*copy_index(char *ret, char *in, int i, int numeric);
 char				*test_ld(char *com, char *in, t_list *tmp, t_list *code);
 char				*test_st(char *in, char *error, t_list *tmp, t_list *code);
 char				*test_add(char *com, char *in, t_list *tmp);
-char				*test_and(char *com, char *in, t_list *tmp);
+char				*test_and(char *com, char *in, t_list *tmp, t_list *code);
 char				*test_fork(char *com, char *in, t_list *tmp, t_list *code);
 char				*test_ldi(char *com, char *in, t_list *tmp, t_list *code);
 char				*test_sti(char *com, char *in, t_list *tmp, t_list *code);

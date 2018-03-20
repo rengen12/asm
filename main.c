@@ -288,9 +288,9 @@ char	*test_str3(int op, char *tr, t_list *tmp, t_list *code)
 
 	error = NULL;
 	if (op == 7)
-		error = test_and("or", tr, tmp);
+		error = test_and("or", tr, tmp, code);
 	else if (op == 8)
-		error = test_and("xor", tr, tmp);
+		error = test_and("xor", tr, tmp, code);
 	else if (op == 9)
 		error = test_fork("zjmp", tr, tmp, code);
 	else if (op == 12)
@@ -326,7 +326,7 @@ char	*test_str2(int op, char *tr, t_list *tmp, t_list *code)
 	else if (op == 5)
 		error = test_add("sub", tr, tmp);
 	else if (op == 6)
-		error = test_and("and", tr, tmp);
+		error = test_and("and", tr, tmp, code);
 	else
 		error = test_str3(op, tr, tmp, code);
 	return (error);
