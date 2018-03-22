@@ -404,7 +404,6 @@ void	add_instr2(t_list *tmp, int acb, int start, int *pos)
 
 char 	*expand(char **ch, int pos, int max)
 {
-	printf("REALLOC\n");
 	char *ret;
 
 	ret = (char*)malloc(max * 2);

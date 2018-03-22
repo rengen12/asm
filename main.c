@@ -128,7 +128,7 @@ char	*test_first(char *in, t_list *code, char *error, char *name)
 	static int	rew;
 	int			i;
 	int			j;
-
+	
 	j = 0;
 	rew++;
 	i = skip_spaces(in, 0);
@@ -137,10 +137,10 @@ char	*test_first(char *in, t_list *code, char *error, char *name)
 	while (in[i] != '\0' && name[j] != '\0')
 		if (in[i++] != name[j++])
 			return (make_error(error, in, i, code));
-	if (in[i] == '\0' || name[j] != '\0')
-		return (make_error(error, in, i, code));
 	i = skip_spaces(in, i);
 	if (in[i++] != '"')
+		return (make_error(error, in, i, code));
+	if (in[i] == '"')
 		return (make_error(error, in, i, code));
 	while (in[i] != '"' && in[i] != '\0')
 		i++;

@@ -1,4 +1,4 @@
-.name           "42"
+.name           "f"
 .comment        "Just a basic Winner Program"
 
 lab1:	

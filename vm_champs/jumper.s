@@ -1,84 +1,74 @@
-.name "Tching tching(Intercepteur), Bouh!Bouh!(bruits d'anti-jeu)"
-.comment ""
+#debut du mega truc qu'il est trop dur a faire
 
+.name "Jumper !"
+.comment "en fait C forker !"
 
-fork %:label_1
-ld %-272,r3
-live %0
-fork %:label_2
-ld %-272,r3
-fork %:label_3
-ld %0,r2
-ld %0,r4
-zjmp %:label_4
+gobepc:	st r1,:buff
+	st r6,-4
+	ld :buff,r1
+debut:	ld %0,r7
+	zjmp %:suite
 
-label_3:	ld %4,r2
-ld %0,r4
-zjmp %:label_4
+goboucle0:	live %66
+		ldi %-5,r3,r1
+		sti r1,%-173,r3
+		add r3,r4,r3
+		xor r5,r3,r6
+		zjmp %:finboucle0
+		ld %0,r7
+		zjmp %:goboucle0
+finboucle0:	xor r3,r3,r3
+		zjmp %-207
 
-label_2:	ld %-202,r3
-fork %:label_5
-ld %0,r2
-ld %0,r4
-label_2:
-zjmp %:label_6
-
-label_5:	ld %4,r2
-ld %0,r4
-zjmp %:label_6
-
-label_1:	ld %144,r3
-live %0
-fork %:label_7
-fork %:label_8
-ld %0,r2
-ld %0,r4
-zjmp %:label_9
-
-label_8:	ld %4,r2
-ld %0,r4
-zjmp %:label_9
-
-label_7:	fork %13
-ld %0,r4
-zjmp %:label_10
-ld %0,r4
-zjmp %:label_11
-
-label_4:	ldi r2,%18,r6
-ld %0,r4
-live %1
-sti r6,r2,r3
-zjmp %-277
-
-label_9:	ldi r2,%18,r6
-ld %0,r4
-live %1
-sti r6,r2,r3
-zjmp %395
-
-label_6:	ldi r2,%18,r6
-ld %0,r4
-live %1
-sti r6,r2,r3
-zjmp %-207
-
-label_10:	live %1
-fork %:label_10
-zjmp %:label_10
-
-label_11:	live %1
-fork %:label_11
-zjmp %:label_11
-192
-	 ld    %0,r4              		# 7,96,185
-	 zjmp  %:label05          		# 3,103,178
-
-label00: ld    %400,r3            		# 7,106,175
-	 live  %0                 		# 5,113,168
-	 fork  %:label06          		# 3,118,163
-	 fork  %:label07          		# 3,121,160
-	 ld    %0,r2              		# 7,124,157
+buff:	st r1,r1	
+		
+suite:	sti r1,%:livel,%1
+livel:	live %66
+	sti r2,%:debut,%-60
+	ld %4,r4
+	st r2,512
+go:	ld %48,r5
+	sti r1,%:goboucle0,%1
+	sti r1,%:goboucle1,%1
+	sti r1,%:live0,%1
+	sti r1,%:live1,%1
+	sti r1,%:live2,%1
+	sti r1,%:live3,%1
+	sti r1,%:live4,%1
+live0:	live %66
+live1:	live %66
+live2:	live %66
+live3:	live %66
+live4:	live %66
+	zjmp %:live0
+	xor r3,r3,r3
+	sti r1,%:livex,%1
+livex:	live %66
+	fork %:live0
+	sti r1,%:boucle,%1
+	sti r1,%:boucle,%9
+	sti r1,%:boucle,%17
+	sti r1,%:boucle,%25
+	
+boucle:	live %66
+	fork %:goboucle0
+	live %66
+	fork %:boucle
+	live %66
+	fork %:goboucle1
+	live %66
+	zjmp %:goboucle0
+goboucle1:	live %66
+		ldi %-5,r3,r1
+		sti r1,%17,r3
+		add r3,r4,r3
+		xor r5,r3,r6
+		zjmp %:finboucle1
+		ld %0,r7
+		zjmp %:goboucle1
+finboucle1:	xor r3,r3,r3
+		zjmp %1
+  		# 7,124,157
 	 ld    %0,r4              		# 7,131,150
 	 zjmp  %:label08          		# 3,138,143
 
