@@ -68,6 +68,8 @@ int		init_name(char *champ, int pos, t_list *code)
 			break ;
 		tmp = tmp->next;
 	}
+	if (!tmp)
+		return (write(1, "Error", 6) - 6);
 	while (tmp->str[j] != '"' && tmp->str[j] != '\0')
 		j++;
 	j++;
@@ -406,9 +408,9 @@ char 	*expand(char **ch, int pos, int max)
 {
 	char *ret;
 
-	ret = (char*)malloc(max * 2);
-	ft_bzero(ret, max * 2);
-	while (pos-- >= 0)
+	ret = (char*)malloc(max * 2 + 10);
+	ft_bzero(ret, max * 2 + 10);
+	while (pos-- > 0)
 		ret[pos] = (*ch)[pos];
 	free(*ch);
 	return (ret);
@@ -655,7 +657,8 @@ char	*create(t_list *code, char *file, int display)
 	ch = (char*)malloc(CHAMP_MAX_SIZE + 100 + PROG_NAME_LENGTH + COMMENT_LENGTH);
 	ft_bzero(ch, CHAMP_MAX_SIZE + 100 + PROG_NAME_LENGTH + COMMENT_LENGTH);
 	pos = init_header(ch);
-	pos = init_name(ch, pos, code);
+	if ((pos = init_name(ch, pos, code)) == 0)
+		return (free_ch_file(ch, file));
 	pos = init_comment(ch, pos, code);
 	tmp = pos;
 	pos = first_trace(&ch, pos, code, 1);
@@ -668,7 +671,6 @@ char	*create(t_list *code, char *file, int display)
 	add_size(ch, pos - tmp);
 	print_success(display, file, fd);
 	write(fd, ch, pos);
-	free(file);
-	free(ch);
+	free_ch_file(ch, file);
 	return (NULL);
 }

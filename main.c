@@ -128,7 +128,7 @@ char	*test_first(char *in, t_list *code, char *error, char *name)
 	static int	rew;
 	int			i;
 	int			j;
-	
+
 	j = 0;
 	rew++;
 	i = skip_spaces(in, 0);
@@ -431,6 +431,51 @@ t_list	*trim_white(t_list *code)
 	return (code);
 }
 
+int		not_only_label(char *in)
+{
+	int i;
+	int j;
+
+	j = 0;
+	i = 0;
+	while (is_label_char(in[i]) == 1)
+		i++;
+	if (in[i] == LABEL_CHAR)
+		i++;
+	i = skip_spaces(in, i);
+	if (in[i] == '\0')
+		return (1);
+	return (0);
+}
+
+int		empty(t_list *code)
+{
+	t_list	*tmp;
+	int 	i;
+
+	i = 0;
+	tmp = code;
+	while (tmp)
+	{
+		if (ft_strlen(tmp->str) > 0 && not_only_label(tmp->str) == 0)
+			i++;
+		tmp = tmp->next;
+	}
+	if (i > 2)
+		return (0);
+	clear_src(code);
+	return (1);
+
+}
+
+t_list	*src_modif(t_list *src)
+{
+	src = lstrev(src);
+	src = trim_comment(src);
+	src = trim_white(src);
+	return (src);
+}
+
 char	*valid(char *file, char *error, int display)
 {
 	int		fd;
@@ -449,10 +494,10 @@ char	*valid(char *file, char *error, int display)
 		free(line);
 	}
 	free(line);
-	src = lstrev(src);
-	src = trim_comment(src);
-	src = trim_white(src);
-	if ((error = test_code(src, error)) != NULL)
+	src = src_modif(src);
+	if (empty(src) == 1)
+		return (strconcat("Invalid file", ""));
+	if ((error = test_code(src, error)))
 		return (error);
 	if ((error = create(src, file, display)) != NULL)
 		clear_src(src);

@@ -203,6 +203,7 @@ unsigned int	get_type(unsigned char acb, int flag)
 	r++;
 	if (flag == 0)
 		r = 0;
+//	printf("type r = %d, acb = %d\n", r, acb);
 	if (acb == 0)
 		return (2);
 	if (r == 1)
@@ -210,7 +211,7 @@ unsigned int	get_type(unsigned char acb, int flag)
 	else if (r == 2)
 		return ((acb & 48) >> 4);
 	else if (r == 3)
-		return ((acb << 28) >> 30);
+		return ((acb & 12) >> 2);
 	return (0);
 }
 
@@ -343,6 +344,7 @@ void	make_link(t_list *code, int i, int val)
 void	add_arg2(t_list *out, char *in, int *i, int type)
 {
 	int		j;
+	int 	val;
 	char	*value;
 
 	j = 0;
@@ -357,7 +359,9 @@ void	add_arg2(t_list *out, char *in, int *i, int type)
 	}
 	else if (type == 3)
 	{
-		value = ft_itoa(in[*i] * 256 + in[*i + 1]);
+		val = in[*i] * 256 + in[*i + 1];
+		val = (val < -256 ? val + 256 : val);
+		value = ft_itoa(val);
 		while (value[j] != '\0')
 			out->str[out->num++] = value[j++];
 		*i = *i + 2;
@@ -404,9 +408,11 @@ int		add_arg(t_list *out, char *in, int *i, int op)
 						== 15 ? (unsigned char)0 : (unsigned char)(in[(*i)++]));
 	num = num_args(acb);
 	out->str[out->num++] = ' ';
+//	printf(">>>>>>>>>>>ADD ARG, op = %d, acb = %d\n", op, acb);
 	while (num-- > 0)
 	{
 		type = get_type(acb, 1);
+//		printf("ADDING arg, type = %d\n", type);
 		if (type == 1 || type == 3)
 			add_arg2(out, in, i, type);
 		else if (type == 2)
@@ -490,11 +496,14 @@ t_list	*add_all(t_list *out, char *in, int max, int pos)
 void	print_list(t_list *code, int flag)
 {
 	t_list	*tmp;
+	int 	i;
 
+	i = 0;
 	tmp = code;
 	while (tmp)
 	{
-		if ((flag & 8) == 8)
+		i++;
+		if ((flag & 8) == 8 && i > 2)
 			printf("%d:\t", tmp->start);
 		printf("%s", tmp->str);
 		tmp = tmp->next;
@@ -519,18 +528,20 @@ void	clear_list(t_list *in)
 void	decompile2(char *file, t_list *out, int flag)
 {
 	int		fd;
+	int 	i;
 	t_list	*tmp;
 	char	*start;
 
 	fd = open(file, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR\
 														| S_IRGRP | S_IROTH);
 	tmp = out;
+	i = 0;
 	write(1, "writing sourse code to file: ", 29);
 	write(1, file, ft_strlen(file));
 	write(1, "\n", 1);
 	while (tmp)
 	{
-		if ((flag & 8) == 8)
+		if ((flag & 8) == 8 && i++ > 2)
 		{
 			start = ft_itoa(tmp->start);
 			write(fd, start, ft_strlen(start));

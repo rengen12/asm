@@ -108,7 +108,8 @@ lab1:
 	sti r1, %:lab1, %0
 	sti r1, %:lab2, %0
 	sti r1, %5000000000, %0
-		and %0, %0,r1
+	
+	and %0, %0,r1
 	and %-5, %-5,r1
 	and %5, %5,r1
 	and %:lab1, %:lab1,r1
