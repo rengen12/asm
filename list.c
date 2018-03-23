@@ -97,13 +97,3 @@ t_list	*lstrev(t_list *com)
 	}
 	return (com);
 }
-
-int		ft_strcmp(char *a, char *b)
-{
-	int i;
-
-	i = 0;
-	while (a[i] == b[i] && a[i] != '\0' && b[i] != '\0')
-		i++;
-	return (a[i] - b[i]);
-}
