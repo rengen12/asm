@@ -83,7 +83,7 @@ char	*test_first(char *in, t_list *code, char *error, char *name)
 	i = skip_spaces(in, i);
 	if (in[i++] != '"')
 		return (make_error(error, in, i, code));
-	if (in[i] == '"')
+	if (in[i] == '"' && rew == 1)
 		return (make_error(error, in, i, code));
 	while (in[i] != '"' && in[i] != '\0')
 		i++;

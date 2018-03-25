@@ -51,7 +51,7 @@ char	*test_ldi2(char *in, int *i, t_list *tmp, t_list *code)
 		{
 			if ((error = test_sk_label(in, i, tmp, code)))
 				return (error);
-			*i = skip_labelchar(in, ++(*i));
+			*i = skip_spaces(in, *i);
 		}
 		else
 			*i = skip_numeric(in, *i);

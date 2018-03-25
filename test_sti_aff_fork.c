@@ -58,13 +58,12 @@ char	*test_sti2(char *in, int *i, t_list *tmp, t_list *code)
 	{
 		*i = (in[*i] == DIRECT_CHAR ? *i + 1 : *i);
 		if (in[*i] == LABEL_CHAR)
-		{
 			if ((e = test_label(in, (++*i), tmp, code)))
 				return (e);
-		}
 		*i = (in[--*i] == LABEL_CHAR ? skip_labelchar(in, ++*i) \
 													: skip_numeric(in, ++*i));
 	}
+	*i = skip_spaces(in, *i);
 	if (in[*i] != SEPARATOR_CHAR)
 		return (strjoin(ft_itoa(tmp->num), ft_itoa(*i + tmp->white)));
 	*i = *i + 1;
